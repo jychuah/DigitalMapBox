@@ -5,9 +5,11 @@ import { FormsModule } from '@angular/forms';
 import { RouterModule } from '@angular/router';
 
 import { HomePage } from './home.page';
+import { CanvasModule } from '../components/canvas.module';
 
 @NgModule({
   imports: [
+    CanvasModule,
     CommonModule,
     FormsModule,
     IonicModule,

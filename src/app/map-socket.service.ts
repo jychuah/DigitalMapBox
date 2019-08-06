@@ -8,19 +8,23 @@ import { Observable } from 'rxjs';
 export class MapSocketService {
   socket: any = null;
   events: Observable<any> = null;
+  url: string = "http://localhost:3000";
 
   constructor() { 
+    this.connect()
   }
 
-  connect(url: string): Observable<any> {
-    this.socket = io(url);
+  connect(url: string = "http://localhost:3000") {
+    this.url = url;
+    this.socket = io(this.url);
+  }
 
-    this.events = new Observable(
+  subscribe(eventName): Observable<any> {
+    return new Observable(
       (observer) => {
-        this.socket.on('drawing', (data) => observer.next(data));
+        this.socket.on(eventName, (data) => observer.next(data));
       }
-    );
-    return this.events;
+    )
   }
 
   emit(event: string, data: any) {

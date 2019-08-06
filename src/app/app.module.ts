@@ -11,7 +11,9 @@ import { AppRoutingModule } from './app-routing.module';
 import { MapSocketService } from './map-socket.service';
 
 @NgModule({
-  declarations: [AppComponent],
+  declarations: [
+    AppComponent, 
+  ],
   entryComponents: [],
   imports: [BrowserModule, IonicModule.forRoot(), AppRoutingModule],
   providers: [
