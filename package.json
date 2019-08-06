@@ -10,7 +10,7 @@
     "test": "ng test",
     "lint": "ng lint",
     "e2e": "ng e2e",
-    "deploy": "ng build --base-href='/gm/' --prod && cp -R www/* server/public/gm"
+    "deploy": "ng build --base-href='/' --prod && cp -R www/* server/public"
   },
   "private": true,
   "dependencies": {

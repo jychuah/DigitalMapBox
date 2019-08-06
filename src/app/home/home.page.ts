@@ -54,8 +54,6 @@ export class HomePage {
     )
   }
 
-
-
   drawLine(x0, y0, x1, y1, color, emit: boolean = false){
     this.context.beginPath();
     this.context.moveTo(x0, y0);
