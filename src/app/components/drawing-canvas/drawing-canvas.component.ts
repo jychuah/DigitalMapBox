@@ -6,11 +6,9 @@ import { BaseCanvasComponent } from '../base-canvas/base-canvas.component';
 
 @Component({
   selector: 'drawing-canvas',
-  templateUrl: './drawing-canvas.component.html',
-  styleUrls: ['./drawing-canvas.component.scss'],
+  templateUrl: './drawing-canvas.component.html'
 })
 export class DrawingCanvasComponent extends BaseCanvasComponent implements AfterViewInit {
-  @ViewChild('canvas', {static: false}) canvasEl: ElementRef;
   drawing: boolean = false;
   events: Observable<any> = null;
   current: any = {
@@ -22,7 +20,7 @@ export class DrawingCanvasComponent extends BaseCanvasComponent implements After
   }
 
   ngAfterViewInit() {
-    this.canvasInit(this.canvasEl.nativeElement);
+    super.ngAfterViewInit();
     this.events = this.maps.subscribe("drawing");
     this.events.subscribe(
       (event) => {

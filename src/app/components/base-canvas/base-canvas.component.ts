@@ -1,20 +1,21 @@
 import { Component, AfterViewInit, ViewChild, ElementRef } from '@angular/core';
 import { Platform } from '@ionic/angular';
-import { MapSocketService } from '../../map-socket.service';
 
 @Component({
   selector: 'base-canvas',
-  template: ''
+  templateUrl: './base-canvas.component.html'
 })
-export class BaseCanvasComponent {
+export class BaseCanvasComponent implements AfterViewInit {
+  @ViewChild('canvas', {static: false}) canvasEl: ElementRef;
   canvas: any;
   context: any;
   previousCall: number = null;
 
   constructor(public platform: Platform) { }
 
-  canvasInit(nativeElement) {
-    this.canvas = nativeElement;
+  ngAfterViewInit() {
+    console.log(this.canvasEl);
+    this.canvas = this.canvasEl.nativeElement;
     this.context = this.canvas.getContext('2d');
     this.canvas.addEventListener('mousedown', (e) => this.onMouseDown(e), false);
     this.canvas.addEventListener('mouseup', (e) => this.onMouseUp(e), false);
