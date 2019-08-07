@@ -1,9 +1,23 @@
 <drawing-canvas></drawing-canvas>
-<ion-fab vertical="bottom" horizontal="end" slot="fixed">
-  <ion-fab-button>
-    <ion-icon name="add"></ion-icon>
+<ion-fab vertical="bottom" horizontal="end" slot="fixed" *ngIf="!ui">
+  <ion-fab-button 
+    color="light" 
+    (click)="toggleUI()" 
+    attr.data-desc="{{ connectionInfo() }}">
+    <ion-icon name="logo-buffer"></ion-icon>
   </ion-fab-button>
-  <ion-fab-list side="top">
-    <ion-fab-button><ion-icon name="logo-facebook" (click)="presentFileModal()"></ion-icon></ion-fab-button>
-  </ion-fab-list>
+</ion-fab>
+<ion-fab class="ui-open" vertical="bottom" horizontal="end" slot="fixed" *ngIf="ui">
+  <ion-fab-button 
+    color="light" 
+    attr.data-desc="{{ filenameInfo() }}"
+    (click)="presentFileModal()">
+    <ion-icon name="folder-open"></ion-icon>
+  </ion-fab-button>
+  <ion-fab-button 
+    color="primary" 
+    (click)="toggleUI()" 
+    attr.data-desc="{{ connectionInfo() }}">
+    <ion-icon name="logo-buffer"></ion-icon>
+  </ion-fab-button>
 </ion-fab>

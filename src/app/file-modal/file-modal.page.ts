@@ -9,16 +9,16 @@ import { Observable } from 'rxjs';
 })
 export class FileModalPage implements OnInit {
   public loading: boolean = true;
-  events: Observable<any> = null;
+  socketEvents: Observable<any> = null;
   public path: string = "/";
   public subdirs: string[] = [];
   public images: string[] = [];
-
+  
   constructor(private maps: MapSocketService) { }
 
   ngOnInit() {
-    this.events = this.maps.subscribe('filelist');
-    this.events.subscribe(
+    this.socketEvents = this.maps.subscribe('filelist');
+    this.socketEvents.subscribe(
       (data) => {
         this.subdirs = data.subdirs;
         this.images = data.images;
@@ -47,4 +47,5 @@ export class FileModalPage implements OnInit {
   select(image) {
     this.maps.emit('loadimage', this.path + image);
   }
+
 }

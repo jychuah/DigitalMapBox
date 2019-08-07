@@ -9,6 +9,7 @@
   ],
   "dependencies": {
     "express": "4.9.x",
+    "ip": "^1.1.5",
     "socket.io": "latest"
   },
   "scripts": {

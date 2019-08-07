@@ -1,4 +1,4 @@
-import { Component, ViewChild, ElementRef } from '@angular/core';
+import { Component, ViewChild, ElementRef, AfterViewInit } from '@angular/core';
 import { MapSocketService } from '../map-socket.service';
 import { Observable } from 'rxjs';
 import { Platform, ModalController } from '@ionic/angular';
@@ -9,9 +9,25 @@ import { FileModalPage } from '../file-modal/file-modal.page';
   templateUrl: 'home.page.html',
   styleUrls: ['home.page.scss'],
 })
-export class HomePage {
+export class HomePage implements AfterViewInit {
+  public ui: boolean = false;
+  public serverInfo: any = {
+    "ip": "",
+    "hostname": "",
+    "filename": ""
+  }
+
   constructor(private maps: MapSocketService, private platform: Platform,
               private modalController: ModalController) {
+  }
+
+  ngAfterViewInit() {
+    this.maps.subscribe('info').subscribe(
+      (data) => {
+        this.serverInfo = data;
+      }
+    );
+    this.maps.emit('info');
   }
 
   async presentFileModal() {
@@ -20,5 +36,24 @@ export class HomePage {
     });
     await modal.present();
     const { data } = await modal.onWillDismiss();
+  }
+
+
+  toggleUI() {
+    this.ui = !this.ui;
+  }
+
+  filenameInfo() {
+    if (!this.serverInfo.filename || !this.serverInfo.filename.length) {
+      return "(None)";
+    }
+    return this.serverInfo.filename;
+  }
+
+  connectionInfo() {
+    if (!this.ui) {
+      return this.serverInfo.hostname + " (" + this.serverInfo.ip + ")";
+    }
+    return ((this.maps.socket.connected) ? "Connected to " : "Disconnected from ") + this.maps.url;
   }
 }

@@ -3,6 +3,7 @@ import { Platform } from '@ionic/angular';
 import { Observable } from 'rxjs';
 import { MapSocketService } from '../../map-socket.service';
 import { BaseCanvasComponent } from '../base-canvas/base-canvas.component';
+import { Events } from '@ionic/angular';
 
 @Component({
   selector: 'drawing-canvas',
@@ -10,21 +11,30 @@ import { BaseCanvasComponent } from '../base-canvas/base-canvas.component';
 })
 export class DrawingCanvasComponent extends BaseCanvasComponent implements AfterViewInit {
   drawing: boolean = false;
-  events: Observable<any> = null;
+  socketEvents: Observable<any> = null;
   current: any = {
     color: 'black'
   }
 
-  constructor(public platform: Platform, public maps: MapSocketService) {
+  constructor(public platform: Platform,
+     public maps: MapSocketService, 
+     private events: Events) {
     super(platform);
   }
 
   ngAfterViewInit() {
     super.ngAfterViewInit();
-    this.events = this.maps.subscribe("drawing");
-    this.events.subscribe(
-      (event) => {
-        this.onDrawingEvent(event);
+    this.connect();
+    this.events.subscribe("reconnect", () => {
+      this.connect();
+    });
+  }
+
+  connect() {
+    this.socketEvents = this.maps.subscribe("drawing");
+    this.socketEvents.subscribe(
+      (data) => {
+        this.onDrawingEvent(data);
       }
     );
   }

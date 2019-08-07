@@ -1,5 +1,6 @@
 import { Injectable } from '@angular/core';
 import * as io from 'socket.io-client';
+import { Events } from '@ionic/angular';
 import { Observable } from 'rxjs';
 
 @Injectable({
@@ -7,16 +8,16 @@ import { Observable } from 'rxjs';
 })
 export class MapSocketService {
   socket: any = null;
-  events: Observable<any> = null;
   url: string = "http://localhost:3000";
 
-  constructor() { 
+  constructor(public events: Events) { 
     this.connect()
   }
 
   connect(url: string = "http://localhost:3000") {
     this.url = url;
     this.socket = io(this.url);
+    this.events.publish("reconnect");
   }
 
   subscribe(eventName): Observable<any> {
