@@ -27,7 +27,7 @@ export class MapSocketService {
     )
   }
 
-  emit(event: string, data: any) {
+  emit(event: string, data: any = "") {
     this.socket.emit(event, data);
   }
 }

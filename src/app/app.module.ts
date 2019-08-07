@@ -9,13 +9,20 @@ import { StatusBar } from '@ionic-native/status-bar/ngx';
 import { AppComponent } from './app.component';
 import { AppRoutingModule } from './app-routing.module';
 import { MapSocketService } from './map-socket.service';
+import { FileModalPageModule } from './file-modal/file-modal.module';
 
 @NgModule({
   declarations: [
     AppComponent, 
   ],
-  entryComponents: [],
-  imports: [BrowserModule, IonicModule.forRoot(), AppRoutingModule],
+  entryComponents: [
+  ],
+  imports: [
+    BrowserModule, 
+    IonicModule.forRoot(), 
+    AppRoutingModule,
+    FileModalPageModule
+  ],
   providers: [
     StatusBar,
     SplashScreen,

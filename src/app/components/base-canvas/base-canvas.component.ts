@@ -14,7 +14,6 @@ export class BaseCanvasComponent implements AfterViewInit {
   constructor(public platform: Platform) { }
 
   ngAfterViewInit() {
-    console.log(this.canvasEl);
     this.canvas = this.canvasEl.nativeElement;
     this.context = this.canvas.getContext('2d');
     this.canvas.addEventListener('mousedown', (e) => this.onMouseDown(e), false);
