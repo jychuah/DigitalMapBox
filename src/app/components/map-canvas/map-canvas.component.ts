@@ -32,6 +32,9 @@ export class MapCanvasComponent extends BaseCanvasComponent implements AfterView
     this.events.subscribe("imageload", (path) => {
       this.load(path);
     });
+    this.events.subscribe("sync", (data) => {
+      this.load(data.filename);
+    });
   }
 
   load(imagePath) {

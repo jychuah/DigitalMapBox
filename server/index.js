@@ -10,7 +10,10 @@ const ip = require('ip');
 
 const extensions = [ 'png', 'jpg', '.jpeg' ];
 
-const state = { filename: "" };
+const state = { 
+  filename: "",
+  vectors: [ ]
+};
 
 app.use(express.static(__dirname + '/public'));
 
@@ -70,7 +73,12 @@ function imageLoadHandler(socket, path) {
 }
 
 function drawingHandler(socket, data) {
+  state.vectors.push(data);
   broadcast(socket, "drawing", data);
+}
+
+function syncHandler(socket) {
+  emit(socket, 'sync', state);
 }
 
 function onConnection(socket){
@@ -78,6 +86,7 @@ function onConnection(socket){
   socket.on('filelist', (path) => fileListHandler(socket, path));
   socket.on('info', () => infoHandler(socket));
   socket.on('imageload', (path) => imageLoadHandler(socket, path));
+  socket.on('sync', () => syncHandler(socket));
 }
 io.on('connection', onConnection);
 

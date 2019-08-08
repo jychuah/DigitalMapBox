@@ -25,6 +25,7 @@ export class HomePage implements AfterViewInit {
       this.serverInfo = data;
     });
     this.maps.emit('info');
+    this.maps.emit('sync');
   }
 
   async presentFileModal() {
