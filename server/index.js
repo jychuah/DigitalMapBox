@@ -10,12 +10,28 @@ const ip = require('ip');
 
 const extensions = [ 'png', 'jpg', '.jpeg' ];
 
-var filename = "";
+const state = { filename: "" };
 
 app.use(express.static(__dirname + '/public'));
 
+function broadcast(socket, event, data) {
+  let payload = {
+    "event": event,
+    "data": data
+  }
+  socket.broadcast.emit("DigitalMapBox", payload);
+}
+
+function emit(socket, event, data) {
+  let payload = {
+    "event": event,
+    "data": data
+  }
+  socket.emit("DigitalMapBox", payload);
+}
+
 function fileListHandler(socket, path) {
-  let contents = fs.readdirSync('./public/img' + path, { withFileTypes: true });
+  let contents = fs.readdirSync('./public' + path, { withFileTypes: true });
   let subdirs = contents
     .filter(dirent => dirent.isDirectory())
     .map(dirent => dirent.name)
@@ -32,24 +48,37 @@ function fileListHandler(socket, path) {
     subdirs: subdirs,
     images: images
   }
-  socket.emit('filelist', result);
+  console.log("File listing", result);
+  emit(socket, 'filelist', result);
 }
 
-function info(socket) {
+function infoHandler(socket) {
   let data = {
     "hostname": os.hostname(),
     "ip": ip.address(),
-    "filename" : filename
+    "filename" : state.filename
   }
-  socket.emit('info', data);
+  emit(socket, "info", data);
+  console.log("Server info", data);
+}
+
+function imageLoadHandler(socket, path) {
+  state.filename = path;
+  console.log("Image Load", path);
+  broadcast(socket, "imageload", path);
+  emit(socket, "imageload", path);
+}
+
+function drawingHandler(socket, data) {
+  broadcast(socket, "drawing", data);
 }
 
 function onConnection(socket){
-  socket.on('drawing', (data) => socket.broadcast.emit('drawing', data));
+  socket.on('drawing', (data) => drawingHandler(socket, data));
   socket.on('filelist', (path) => fileListHandler(socket, path));
-  socket.on('info', () => info(socket));
+  socket.on('info', () => infoHandler(socket));
+  socket.on('imageload', (path) => imageLoadHandler(socket, path));
 }
-
 io.on('connection', onConnection);
 
 http.listen(port, () => console.log('listening on port ' + port));

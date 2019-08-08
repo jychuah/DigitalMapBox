@@ -1,5 +1,5 @@
 import { Component, AfterViewInit, ViewChild, ElementRef } from '@angular/core';
-import { Platform } from '@ionic/angular';
+import { Platform, Events } from '@ionic/angular';
 
 @Component({
   selector: 'base-canvas',
@@ -11,7 +11,7 @@ export class BaseCanvasComponent implements AfterViewInit {
   context: any;
   previousCall: number = null;
 
-  constructor(public platform: Platform) { }
+  constructor(public platform: Platform, public events: Events) { }
 
   ngAfterViewInit() {
     this.canvas = this.canvasEl.nativeElement;
@@ -34,7 +34,11 @@ export class BaseCanvasComponent implements AfterViewInit {
           this.onResize();
         });
       }
-    )
+    );
+    this.connect();
+    this.events.subscribe("reconnect", () => {
+      this.connect();
+    });
   }
 
   throttleMouseMove(e) {
@@ -43,7 +47,6 @@ export class BaseCanvasComponent implements AfterViewInit {
     this.previousCall = time;
     this.onMouseMove(e);
   }
-
 
   onMouseDown(e) {
   }
@@ -54,9 +57,17 @@ export class BaseCanvasComponent implements AfterViewInit {
   onMouseMove(e) {
   }
 
+  connect() {
+  }
+
   // make the canvas fill its parent
   onResize() {
     this.canvas.width = this.platform.width();
     this.canvas.height = this.platform.height();
+    this.redraw();
+  }
+
+  redraw() {
+
   }
 }

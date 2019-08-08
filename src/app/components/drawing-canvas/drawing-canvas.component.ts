@@ -18,25 +18,14 @@ export class DrawingCanvasComponent extends BaseCanvasComponent implements After
 
   constructor(public platform: Platform,
      public maps: MapSocketService, 
-     private events: Events) {
-    super(platform);
-  }
-
-  ngAfterViewInit() {
-    super.ngAfterViewInit();
-    this.connect();
-    this.events.subscribe("reconnect", () => {
-      this.connect();
-    });
+     public events: Events) {
+     super(platform, events);
   }
 
   connect() {
-    this.socketEvents = this.maps.subscribe("drawing");
-    this.socketEvents.subscribe(
-      (data) => {
-        this.onDrawingEvent(data);
-      }
-    );
+    this.events.subscribe("drawing", (data) => {
+      this.onDrawingEvent(data);
+    });
   }
 
   drawLine(x0, y0, x1, y1, color, emit: boolean = false){

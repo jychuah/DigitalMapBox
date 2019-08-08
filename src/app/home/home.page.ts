@@ -1,9 +1,8 @@
 import { Component, ViewChild, ElementRef, AfterViewInit } from '@angular/core';
 import { MapSocketService } from '../map-socket.service';
-import { Observable } from 'rxjs';
 import { Platform, ModalController } from '@ionic/angular';
 import { FileModalPage } from '../file-modal/file-modal.page';
-
+import { Events } from '@ionic/angular';
 @Component({
   selector: 'app-home',
   templateUrl: 'home.page.html',
@@ -18,15 +17,13 @@ export class HomePage implements AfterViewInit {
   }
 
   constructor(private maps: MapSocketService, private platform: Platform,
-              private modalController: ModalController) {
+              private modalController: ModalController, private events: Events) {
   }
 
   ngAfterViewInit() {
-    this.maps.subscribe('info').subscribe(
-      (data) => {
-        this.serverInfo = data;
-      }
-    );
+    this.events.subscribe('info', (data) => {
+      this.serverInfo = data;
+    });
     this.maps.emit('info');
   }
 
@@ -35,7 +32,7 @@ export class HomePage implements AfterViewInit {
       component: FileModalPage,
     });
     await modal.present();
-    const { data } = await modal.onWillDismiss();
+    await modal.onWillDismiss();
   }
 
 

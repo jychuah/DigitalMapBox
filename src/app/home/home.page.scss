@@ -2,6 +2,14 @@ drawing-canvas {
     position: absolute;
     left: 0;
     top: 0;
+    z-index: 10;
+}
+
+map-canvas {
+    position: absolute;
+    left: 0;
+    top: 0;
+    z-index: 1;
 }
 
 .ui-open {

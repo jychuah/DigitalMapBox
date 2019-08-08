@@ -17,15 +17,9 @@ export class MapSocketService {
   connect(url: string = "http://localhost:3000") {
     this.url = url;
     this.socket = io(this.url);
-    this.events.publish("reconnect");
-  }
-
-  subscribe(eventName): Observable<any> {
-    return new Observable(
-      (observer) => {
-        this.socket.on(eventName, (data) => observer.next(data));
-      }
-    )
+    this.socket.on("DigitalMapBox", (data) => {
+      this.events.publish(data.event, data.data);
+    });
   }
 
   emit(event: string, data: any = "") {
