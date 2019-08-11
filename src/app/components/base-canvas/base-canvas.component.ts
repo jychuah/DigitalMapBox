@@ -1,5 +1,6 @@
 import { Component, AfterViewInit, ViewChild, ElementRef } from '@angular/core';
 import { Platform, Events } from '@ionic/angular';
+import { MapSocketService } from '../../map-socket.service';
 
 @Component({
   selector: 'base-canvas',
@@ -11,7 +12,9 @@ export class BaseCanvasComponent implements AfterViewInit {
   context: any;
   previousCall: number = null;
 
-  constructor(public platform: Platform, public events: Events) { }
+  constructor(public platform: Platform, 
+              public events: Events, 
+              public maps: MapSocketService) { }
 
   ngAfterViewInit() {
     this.canvas = this.canvasEl.nativeElement;
@@ -36,8 +39,11 @@ export class BaseCanvasComponent implements AfterViewInit {
       }
     );
     this.connect();
-    this.events.subscribe("reconnect", () => {
-      this.connect();
+    this.events.subscribe("sync", () => {
+      this.redraw();
+    });
+    this.events.subscribe("redraw", () => {
+      this.redraw();
     });
   }
 
@@ -68,6 +74,5 @@ export class BaseCanvasComponent implements AfterViewInit {
   }
 
   redraw() {
-
   }
 }

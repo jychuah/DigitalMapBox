@@ -11,8 +11,17 @@ const ip = require('ip');
 const extensions = [ 'png', 'jpg', '.jpeg' ];
 
 const state = { 
-  filename: "",
-  vectors: [ ]
+  path: "",
+  vectors: [ ],
+  viewport: {
+    center: {
+      x: 0,
+      y: 0
+    },
+    scale: 1.0
+  },
+  hostname: os.hostname(),
+  ip: ip.address(),
 };
 
 app.use(express.static(__dirname + '/public'));
@@ -55,21 +64,11 @@ function fileListHandler(socket, path) {
   emit(socket, 'filelist', result);
 }
 
-function infoHandler(socket) {
-  let data = {
-    "hostname": os.hostname(),
-    "ip": ip.address(),
-    "filename" : state.filename
-  }
-  emit(socket, "info", data);
-  console.log("Server info", data);
-}
-
 function imageLoadHandler(socket, path) {
-  state.filename = path;
+  state.path = path;
   console.log("Image Load", path);
-  broadcast(socket, "imageload", path);
-  emit(socket, "imageload", path);
+  broadcast(socket, 'sync', state);
+  syncHandler(socket);
 }
 
 function drawingHandler(socket, data) {
@@ -78,15 +77,16 @@ function drawingHandler(socket, data) {
 }
 
 function syncHandler(socket) {
+  console.log("Sync", state);
   emit(socket, 'sync', state);
 }
 
 function onConnection(socket){
   socket.on('drawing', (data) => drawingHandler(socket, data));
   socket.on('filelist', (path) => fileListHandler(socket, path));
-  socket.on('info', () => infoHandler(socket));
   socket.on('imageload', (path) => imageLoadHandler(socket, path));
   socket.on('sync', () => syncHandler(socket));
+  syncHandler(socket);
 }
 io.on('connection', onConnection);
 

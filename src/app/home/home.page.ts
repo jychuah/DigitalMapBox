@@ -10,21 +10,11 @@ import { Events } from '@ionic/angular';
 })
 export class HomePage implements AfterViewInit {
   public ui: boolean = false;
-  public serverInfo: any = {
-    "ip": "",
-    "hostname": "",
-    "filename": ""
-  }
-
   constructor(private maps: MapSocketService, private platform: Platform,
               private modalController: ModalController, private events: Events) {
   }
 
   ngAfterViewInit() {
-    this.events.subscribe('info', (data) => {
-      this.serverInfo = data;
-    });
-    this.maps.emit('info');
     this.maps.emit('sync');
   }
 
@@ -42,15 +32,15 @@ export class HomePage implements AfterViewInit {
   }
 
   filenameInfo() {
-    if (!this.serverInfo.filename || !this.serverInfo.filename.length) {
+    if (!this.maps.state.path || !this.maps.state.path.length) {
       return "(None)";
     }
-    return this.serverInfo.filename;
+    return this.maps.state.path;
   }
 
   connectionInfo() {
     if (!this.ui) {
-      return this.serverInfo.hostname + " (" + this.serverInfo.ip + ")";
+      return this.maps.state.hostname + " (" + this.maps.state.ip + ")";
     }
     return ((this.maps.socket.connected) ? "Connected to " : "Disconnected from ") + this.maps.url;
   }

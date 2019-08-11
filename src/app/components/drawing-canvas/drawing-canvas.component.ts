@@ -4,6 +4,7 @@ import { Observable } from 'rxjs';
 import { MapSocketService } from '../../map-socket.service';
 import { BaseCanvasComponent } from '../base-canvas/base-canvas.component';
 import { Events } from '@ionic/angular';
+import { Vector, Point } from '../../types';
 
 @Component({
   selector: 'drawing-canvas',
@@ -15,44 +16,31 @@ export class DrawingCanvasComponent extends BaseCanvasComponent implements After
   current: any = {
     color: 'black'
   }
-  vectors: any[] = [];
 
   constructor(public platform: Platform,
-     public maps: MapSocketService, 
-     public events: Events) {
-     super(platform, events);
+              public events: Events,
+              public maps: MapSocketService) {
+    super(platform, events, maps);
   }
 
   connect() {
     this.events.subscribe("drawing", (data) => {
       this.onDrawingEvent(data);
     });
-    this.events.subscribe("sync", (state) => {
-      this.vectors = state.vectors;
-      this.redraw();
-    });
   }
 
-  drawLine(data, emit: boolean = false){
+  drawLine(vector: Vector, emit: boolean = false){
     this.context.beginPath();
-    this.context.moveTo(data.x0, data.y0);
-    this.context.lineTo(data.x1, data.y1);
-    this.context.strokeStyle = data.color;
-    this.context.lineWidth = 2;
+    this.context.moveTo(vector.p0.x, vector.p0.y);
+    this.context.lineTo(vector.p1.x, vector.p1.y);
+    this.context.strokeStyle = vector.color;
+    this.context.lineWidth = vector.width;
     this.context.stroke();
     this.context.closePath();
 
     if (!emit) { return; }
 
-    this.vectors.push(data);
-
-    this.maps.emit('drawing', {
-      x0: data.x0,
-      y0: data.y0,
-      x1: data.x1,
-      y1: data.y1,
-      color: data.color
-    });
+    this.maps.emit('drawing', vector);
   }
 
   onMouseDown(e) {
@@ -61,29 +49,31 @@ export class DrawingCanvasComponent extends BaseCanvasComponent implements After
     this.current.y = e.clientY||e.touches[0].clientY;
   }
 
+  eventToVector(e) {
+    let vector = {
+      p0: {
+        x: this.current.x,
+        y: this.current.y,
+      },
+      p1: {
+        x: e.clientX||e.touches[0].clientX, 
+        y: e.clientY||e.touches[0].clientY, 
+      },
+      color: this.maps.penColor,
+      width: 2 * this.maps.state.viewport.scale
+    } 
+    return vector;
+  }
+
   onMouseUp(e) {
     if (!this.drawing) { return; }
     this.drawing = false;
-    let vector = {
-      x0: this.current.x,
-      y0: this.current.y,
-      x1: e.clientX||e.touches[0].clientX, 
-      y1: e.clientY||e.touches[0].clientY, 
-      color: this.current.color, 
-    }
-    this.drawLine(vector, true);
+    this.drawLine(this.eventToVector(e), true);
   }
 
   onMouseMove(e) {
     if (!this.drawing) { return; }
-    let vector = {
-      x0: this.current.x,
-      y0: this.current.y,
-      x1: e.clientX||e.touches[0].clientX, 
-      y1: e.clientY||e.touches[0].clientY, 
-      color: this.current.color, 
-    }
-    this.drawLine(vector, true);
+    this.drawLine(this.eventToVector(e), true);
     this.current.x = e.clientX||e.touches[0].clientX;
     this.current.y = e.clientY||e.touches[0].clientY;
   }
@@ -98,7 +88,7 @@ export class DrawingCanvasComponent extends BaseCanvasComponent implements After
 
   redraw() {
     this.context.clearRect(0, 0, this.canvas.width, this.canvas.height);
-    this.vectors.forEach(
+    this.maps.state.vectors.forEach(
       (vector) => {
         this.drawLine(vector);
       }

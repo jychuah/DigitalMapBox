@@ -5,6 +5,7 @@ import { BaseCanvasComponent } from './base-canvas/base-canvas.component';
 import { MapCanvasComponent } from './map-canvas/map-canvas.component';
 import { DrawingCanvasComponent } from './drawing-canvas/drawing-canvas.component';
 import { MapNavComponent } from './map-nav/map-nav.component';
+import { MiniMapCanvasComponent} from './mini-map-canvas/mini-map-canvas.component';
 
 @NgModule({
   entryComponents: [
@@ -17,13 +18,15 @@ import { MapNavComponent } from './map-nav/map-nav.component';
     DrawingCanvasComponent,
     MapNavComponent,
     BaseCanvasComponent,
-    MapCanvasComponent
+    MapCanvasComponent,
+    MiniMapCanvasComponent
   ],
   exports: [
     DrawingCanvasComponent,
     MapNavComponent,
     BaseCanvasComponent,
-    MapCanvasComponent
+    MapCanvasComponent,
+    MiniMapCanvasComponent
   ]
 })
 export class CanvasModule {}
