@@ -1,1 +1,4 @@
 <canvas #canvas></canvas>
+<ion-range 
+    color="light" (ionChange)="scaleChange($event)"
+    [(ngModel)]="rangeSlider"></ion-range>

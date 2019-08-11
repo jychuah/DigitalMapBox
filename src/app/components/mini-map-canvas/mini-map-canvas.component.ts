@@ -3,7 +3,6 @@ import { BaseCanvasComponent } from '../base-canvas/base-canvas.component';
 import { Events, Platform } from '@ionic/angular';
 import { MapSocketService } from '../../map-socket.service';
 import { ViewPort, Point } from '../../types';
-import { ThrowStmt } from '@angular/compiler';
 
 @Component({
   selector: 'mini-map-canvas',
@@ -16,6 +15,7 @@ export class MiniMapCanvasComponent extends BaseCanvasComponent implements After
   dWidth: number = 0;
   dHeight: number = 0;
   scale: number = 1.0;
+  rangeSlider: number = 50;
   viewscale: number = 1.0;
   localView: ViewPort = {
     center: {
@@ -32,6 +32,12 @@ export class MiniMapCanvasComponent extends BaseCanvasComponent implements After
     height: 0
   }
 
+  minp: number = 0;
+  maxp: number = 100;
+  minv: number = Math.log(0.1);
+  maxv: number = Math.log(5);
+  sliderScale: number = (this.maxv - this.minv) / (this.maxp - this.minp);
+
   constructor(public platform: Platform, 
               public events: Events, 
               public maps: MapSocketService,
@@ -43,8 +49,18 @@ export class MiniMapCanvasComponent extends BaseCanvasComponent implements After
     super.connect();
     this.events.subscribe("viewport", (viewport) => {
       this.localView = viewport;
+      this.rangeSlider = this.getRangeSlider(viewport.scale);
       this.redraw();
     });
+  }
+
+  scaleChange($event) {
+    let result = Math.exp(this.minv + this.sliderScale * (this.rangeSlider - this.minp));
+  }
+
+  getRangeSlider(scale) {
+    let log = Math.log(scale);
+    return (log - this.minv) / this.sliderScale + this.minp;
   }
 
   getMinimapPoint(e) : Point {

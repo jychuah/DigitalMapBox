@@ -21,7 +21,7 @@ import { FileModalPageModule } from './file-modal/file-modal.module';
     BrowserModule, 
     IonicModule.forRoot(), 
     AppRoutingModule,
-    FileModalPageModule
+    FileModalPageModule,
   ],
   providers: [
     StatusBar,
