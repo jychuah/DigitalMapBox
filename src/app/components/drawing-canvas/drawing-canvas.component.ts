@@ -87,6 +87,7 @@ export class DrawingCanvasComponent extends BaseCanvasComponent implements After
   }
 
   redraw() {
+    super.redraw();
     this.context.clearRect(0, 0, this.canvas.width, this.canvas.height);
     this.maps.state.vectors.forEach(
       (vector) => {

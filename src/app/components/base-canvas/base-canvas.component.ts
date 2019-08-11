@@ -47,6 +47,10 @@ export class BaseCanvasComponent implements AfterViewInit {
     });
   }
 
+  applyTransforms() {
+    this.context.setTransform(1, 0, 0, 1, this.platform.width() / 2, this.platform.height() / 2);
+  }
+
   throttleMouseMove(e) {
     let time = new Date().getTime();
     if ((time - this.previousCall) < 10) { return; }
@@ -74,5 +78,6 @@ export class BaseCanvasComponent implements AfterViewInit {
   }
 
   redraw() {
+    this.applyTransforms();
   }
 }

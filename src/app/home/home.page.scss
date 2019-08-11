@@ -12,6 +12,15 @@ map-canvas {
     z-index: 1;
 }
 
+mini-map-canvas {
+    position: absolute;
+    z-index: 100;
+    right: 1em;
+    top: 1em;
+    width: 25%;
+    height: 25%;
+}
+
 .ui-open {
     ion-fab-button[color="light"] {
         margin-bottom: 1em;
