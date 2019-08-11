@@ -80,7 +80,8 @@ export class MiniMapCanvasComponent extends BaseCanvasComponent implements After
 
   onMouseUp(e) {
     if (this.dragging) {
-      console.log(this.localView);
+      this.maps.state.viewport = this.localView;
+      this.events.publish("redraw");
     }
     this.dragging = false;
   }

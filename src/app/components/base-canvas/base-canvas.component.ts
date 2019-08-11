@@ -48,7 +48,15 @@ export class BaseCanvasComponent implements AfterViewInit {
   }
 
   applyTransforms() {
-    this.context.setTransform(1, 0, 0, 1, this.platform.width() / 2, this.platform.height() / 2);
+    this.context.setTransform(
+      1, 0, 0, 1,
+      this.platform.width() / 2,
+      this.platform.height() / 2
+    )
+    this.context.translate(
+      -this.maps.state.viewport.center.x,
+      -this.maps.state.viewport.center.y
+    );
   }
 
   throttleMouseMove(e) {

@@ -21,6 +21,7 @@ export class MapCanvasComponent extends BaseCanvasComponent implements AfterView
   }
 
   redraw() {
+    this.context.setTransform(1, 0, 0, 1, 0, 0);
     this.context.style = "black";
     this.context.fillRect(0, 0, this.canvas.width, this.canvas.height);
     super.redraw();
