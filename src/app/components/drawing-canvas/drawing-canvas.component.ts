@@ -69,7 +69,7 @@ export class DrawingCanvasComponent extends BaseCanvasComponent implements After
       p0: this.current,
       p1: this.eventToLocalPoint(e),
       color: this.maps.penColor,
-      width: 2 * this.maps.state.viewport.scale
+      width: 2 / this.maps.state.viewport.scale
     } 
     return vector;
   }
