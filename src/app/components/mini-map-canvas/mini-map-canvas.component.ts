@@ -55,6 +55,11 @@ export class MiniMapCanvasComponent extends BaseCanvasComponent implements After
     });
   }
 
+  ngAfterViewInit() {
+    super.ngAfterViewInit();
+    this.refreshFromEvent();
+  }
+
   refreshFromEvent() {
     this.localView = this.maps.state.viewport;
     this.rangeSlider = this.getRangeSlider(this.maps.state.viewport.scale);

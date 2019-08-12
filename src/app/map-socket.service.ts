@@ -23,7 +23,7 @@ export class MapSocketService {
       scale: 1.0
     }
   }
-  public penColor: "black";
+  public penColor: string = "white";
   public image: any = new Image();
 
   constructor(public events: Events) { 

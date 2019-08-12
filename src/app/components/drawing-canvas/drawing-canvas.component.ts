@@ -13,12 +13,9 @@ import { Vector, Point } from '../../types';
 export class DrawingCanvasComponent extends BaseCanvasComponent implements AfterViewInit {
   drawing: boolean = false;
   socketEvents: Observable<any> = null;
-  current: any = {
-    color: 'black',
-    p: {
-      x: 0,
-      y: 0
-    }
+  current: Point = {
+    x: 0,
+    y: 0
   }
 
   constructor(public platform: Platform,
@@ -52,7 +49,7 @@ export class DrawingCanvasComponent extends BaseCanvasComponent implements After
 
   onMouseDown(e) {
     this.drawing = true;
-    this.current.p = this.getLocalPoint(
+    this.current = this.getLocalPoint(
       {
         x: e.clientX||e.touches[0].clientX,
         y: e.clientY||e.touches[0].clientY
@@ -60,16 +57,16 @@ export class DrawingCanvasComponent extends BaseCanvasComponent implements After
     );
   }
 
-  eventToLocalPoint(e) {
+  eventToLocalPoint(e) : Point {
     return this.getLocalPoint({
       x: e.clientX||e.touches[0].clientX, 
       y: e.clientY||e.touches[0].clientY
     });
   }
 
-  eventToVector(e) {
+  eventToVector(e) : Vector {
     let vector = {
-      p0: this.current.p,
+      p0: this.current,
       p1: this.eventToLocalPoint(e),
       color: this.maps.penColor,
       width: 2 * this.maps.state.viewport.scale
@@ -86,12 +83,9 @@ export class DrawingCanvasComponent extends BaseCanvasComponent implements After
   onMouseMove(e) {
     if (!this.drawing) { return; }
     this.drawLine(this.eventToVector(e), true);
-    this.current.p = this.eventToLocalPoint(e);
+    this.current = this.eventToLocalPoint(e);
   }
 
-  onColorUpdate(e) {
-    this.current.color = e.target.className.split(' ')[1];
-  }
 
   onDrawingEvent(data){
     this.drawLine(data);
