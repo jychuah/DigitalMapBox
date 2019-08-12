@@ -44,7 +44,6 @@ export class DrawingCanvasComponent extends BaseCanvasComponent implements After
 
     this.maps.emit('drawing', vector);
     this.maps.state.vectors.push(vector);
-
   }
 
   onMouseDown(e) {

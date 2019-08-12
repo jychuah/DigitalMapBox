@@ -47,6 +47,9 @@ export class MapSocketService {
       if (data.event == "viewport") {
         this.state.viewport = data.data;
       }
+      if (data.event == "drawing") {
+        this.state.vectors.push(data.data);
+      }
       this.events.publish(data.event, data.data);
     });
   }
