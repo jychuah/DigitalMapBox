@@ -56,6 +56,9 @@ export class MiniMapCanvasComponent extends BaseCanvasComponent implements After
 
   scaleChange($event) {
     let result = Math.exp(this.minv + this.sliderScale * (this.rangeSlider - this.minp));
+    this.maps.state.viewport.scale = result;
+    // TODO: Broadcast viewport event
+    this.redraw();
   }
 
   getRangeSlider(scale) {
@@ -109,11 +112,10 @@ export class MiniMapCanvasComponent extends BaseCanvasComponent implements After
   }
 
   calculateLocalRect() {
-    // TODO: Apply viewport scaling
-    this.localRect.x = (-this.platform.width() / 2 + this.localView.center.x) * this.scale + this.dx;
-    this.localRect.y = (-this.platform.height() / 2 + this.localView.center.y) * this.scale + this.dy;
-    this.localRect.width = this.platform.width() * this.scale;
-    this.localRect.height = this.platform.height() * this.scale;
+    this.localRect.x = (-this.platform.width() / 2 / this.maps.state.viewport.scale + this.localView.center.x) * this.scale + this.dx;
+    this.localRect.y = (-this.platform.height() / 2 / this.maps.state.viewport.scale + this.localView.center.y) * this.scale + this.dy;
+    this.localRect.width = this.platform.width() * this.scale / this.maps.state.viewport.scale;
+    this.localRect.height = this.platform.height() * this.scale / this.maps.state.viewport.scale;
   }
 
   redraw() {
