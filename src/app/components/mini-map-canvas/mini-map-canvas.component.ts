@@ -57,8 +57,7 @@ export class MiniMapCanvasComponent extends BaseCanvasComponent implements After
   scaleChange($event) {
     let result = Math.exp(this.minv + this.sliderScale * (this.rangeSlider - this.minp));
     this.maps.state.viewport.scale = result;
-    // TODO: Broadcast viewport event
-    this.redraw();
+    this.events.publish("redraw");
   }
 
   getRangeSlider(scale) {

@@ -53,6 +53,10 @@ export class BaseCanvasComponent implements AfterViewInit {
       this.platform.width() / 2,
       this.platform.height() / 2
     )
+    this.context.scale(
+      this.maps.state.viewport.scale, 
+      this.maps.state.viewport.scale
+    )
     this.context.translate(
       -this.maps.state.viewport.center.x,
       -this.maps.state.viewport.center.y
