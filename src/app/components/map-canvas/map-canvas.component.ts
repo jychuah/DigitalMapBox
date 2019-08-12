@@ -14,6 +14,7 @@ export class MapCanvasComponent extends BaseCanvasComponent implements AfterView
               public events: Events,
               public maps: MapSocketService) { 
     super(platform, events, maps);
+    this.background = "black";
   }
 
   ngAfterViewInit() {
@@ -21,10 +22,8 @@ export class MapCanvasComponent extends BaseCanvasComponent implements AfterView
   }
 
   redraw() {
-    this.context.setTransform(1, 0, 0, 1, 0, 0);
-    this.context.style = "black";
-    this.context.fillRect(0, 0, this.canvas.width, this.canvas.height);
     super.redraw();
+    if (!this.maps.image.complete) { return; }
     this.context.drawImage(this.maps.image, 0, 0);
   }
 }

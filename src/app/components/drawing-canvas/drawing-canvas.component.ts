@@ -14,7 +14,11 @@ export class DrawingCanvasComponent extends BaseCanvasComponent implements After
   drawing: boolean = false;
   socketEvents: Observable<any> = null;
   current: any = {
-    color: 'black'
+    color: 'black',
+    p: {
+      x: 0,
+      y: 0
+    }
   }
 
   constructor(public platform: Platform,
@@ -38,27 +42,35 @@ export class DrawingCanvasComponent extends BaseCanvasComponent implements After
     this.context.stroke();
     this.context.closePath();
 
+
     if (!emit) { return; }
 
     this.maps.emit('drawing', vector);
+    this.maps.state.vectors.push(vector);
+
   }
 
   onMouseDown(e) {
     this.drawing = true;
-    this.current.x = e.clientX||e.touches[0].clientX;
-    this.current.y = e.clientY||e.touches[0].clientY;
+    this.current.p = this.getLocalPoint(
+      {
+        x: e.clientX||e.touches[0].clientX,
+        y: e.clientY||e.touches[0].clientY
+      }
+    );
+  }
+
+  eventToLocalPoint(e) {
+    return this.getLocalPoint({
+      x: e.clientX||e.touches[0].clientX, 
+      y: e.clientY||e.touches[0].clientY
+    });
   }
 
   eventToVector(e) {
     let vector = {
-      p0: {
-        x: this.current.x,
-        y: this.current.y,
-      },
-      p1: {
-        x: e.clientX||e.touches[0].clientX, 
-        y: e.clientY||e.touches[0].clientY, 
-      },
+      p0: this.current.p,
+      p1: this.eventToLocalPoint(e),
       color: this.maps.penColor,
       width: 2 * this.maps.state.viewport.scale
     } 
@@ -74,8 +86,7 @@ export class DrawingCanvasComponent extends BaseCanvasComponent implements After
   onMouseMove(e) {
     if (!this.drawing) { return; }
     this.drawLine(this.eventToVector(e), true);
-    this.current.x = e.clientX||e.touches[0].clientX;
-    this.current.y = e.clientY||e.touches[0].clientY;
+    this.current.p = this.eventToLocalPoint(e);
   }
 
   onColorUpdate(e) {
@@ -88,7 +99,6 @@ export class DrawingCanvasComponent extends BaseCanvasComponent implements After
 
   redraw() {
     super.redraw();
-    this.context.clearRect(0, 0, this.canvas.width, this.canvas.height);
     this.maps.state.vectors.forEach(
       (vector) => {
         this.drawLine(vector);

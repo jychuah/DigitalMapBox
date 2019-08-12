@@ -44,6 +44,9 @@ export class MapSocketService {
         this.image.src = this.url + this.state.path;
         console.log("Loading", this.image.src);
       }
+      if (data.event == "viewport") {
+        this.state.viewport = data.data;
+      }
       this.events.publish(data.event, data.data);
     });
   }

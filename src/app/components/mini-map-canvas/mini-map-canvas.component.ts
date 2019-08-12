@@ -47,17 +47,26 @@ export class MiniMapCanvasComponent extends BaseCanvasComponent implements After
 
   connect() {
     super.connect();
-    this.events.subscribe("viewport", (viewport) => {
-      this.localView = viewport;
-      this.rangeSlider = this.getRangeSlider(viewport.scale);
-      this.redraw();
+    this.events.subscribe("sync", () => {
+      this.refreshFromEvent();
     });
+    this.events.subscribe("viewport", () => {
+      this.refreshFromEvent();
+    });
+  }
+
+  refreshFromEvent() {
+    this.localView = this.maps.state.viewport;
+    this.rangeSlider = this.getRangeSlider(this.maps.state.viewport.scale);
+    this.redraw();    
   }
 
   scaleChange($event) {
     let result = Math.exp(this.minv + this.sliderScale * (this.rangeSlider - this.minp));
     this.maps.state.viewport.scale = result;
-    this.events.publish("redraw");
+    this.maps.emit("viewport", this.maps.state.viewport);
+    this.events.publish("viewport");
+    this.redraw();
   }
 
   getRangeSlider(scale) {
@@ -99,7 +108,8 @@ export class MiniMapCanvasComponent extends BaseCanvasComponent implements After
   onMouseUp(e) {
     if (this.dragging) {
       this.maps.state.viewport = this.localView;
-      this.events.publish("redraw");
+      this.maps.emit("viewport", this.maps.state.viewport);
+      this.events.publish("viewport");
     }
     this.dragging = false;
   }

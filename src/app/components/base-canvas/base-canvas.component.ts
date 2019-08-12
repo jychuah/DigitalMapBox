@@ -1,6 +1,7 @@
 import { Component, AfterViewInit, ViewChild, ElementRef } from '@angular/core';
 import { Platform, Events } from '@ionic/angular';
 import { MapSocketService } from '../../map-socket.service';
+import { Point } from '../../types';
 
 @Component({
   selector: 'base-canvas',
@@ -11,6 +12,7 @@ export class BaseCanvasComponent implements AfterViewInit {
   canvas: any;
   context: any;
   previousCall: number = null;
+  background: string = null;
 
   constructor(public platform: Platform, 
               public events: Events, 
@@ -45,6 +47,9 @@ export class BaseCanvasComponent implements AfterViewInit {
     this.events.subscribe("redraw", () => {
       this.redraw();
     });
+    this.events.subscribe("viewport", () => {
+      this.redraw();
+    });
   }
 
   applyTransforms() {
@@ -61,6 +66,16 @@ export class BaseCanvasComponent implements AfterViewInit {
       -this.maps.state.viewport.center.x,
       -this.maps.state.viewport.center.y
     );
+  }
+
+  getLocalPoint(p: Point) : Point {
+    p.x -= this.platform.width() / 2;
+    p.y -= this.platform.height() / 2;
+    p.x /= this.maps.state.viewport.scale;
+    p.y /= this.maps.state.viewport.scale;
+    p.x += this.maps.state.viewport.center.x;
+    p.y += this.maps.state.viewport.center.y;
+    return p;
   }
 
   throttleMouseMove(e) {
@@ -90,6 +105,13 @@ export class BaseCanvasComponent implements AfterViewInit {
   }
 
   redraw() {
+    this.context.setTransform(1, 0, 0, 1, 0, 0);
+    if (this.background) {
+      this.context.fillStyle = this.background;
+      this.context.fillRect(0, 0, this.canvas.width, this.canvas.height);
+    } else {
+      this.context.clearRect(0, 0, this.canvas.width, this.canvas.height);
+    }
     this.applyTransforms();
   }
 }

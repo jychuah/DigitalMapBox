@@ -81,11 +81,18 @@ function syncHandler(socket) {
   emit(socket, 'sync', state);
 }
 
+function viewportHandler(socket, viewport) {
+  state.viewport = viewport;
+  console.log("Viewport change", viewport);
+  broadcast(socket, "viewport", viewport);
+}
+
 function onConnection(socket){
   socket.on('drawing', (data) => drawingHandler(socket, data));
   socket.on('filelist', (path) => fileListHandler(socket, path));
   socket.on('imageload', (path) => imageLoadHandler(socket, path));
   socket.on('sync', () => syncHandler(socket));
+  socket.on('viewport', (viewport) => viewportHandler(socket, viewport));
   syncHandler(socket);
 }
 io.on('connection', onConnection);
