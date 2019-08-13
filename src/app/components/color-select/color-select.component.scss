@@ -1,0 +1,25 @@
+.swatch {
+    width: 2em;
+    height: 2em;
+    border-style: solid;
+    border-color: black;
+    border-width: 0.05em;
+    display: inline-block;
+    cursor: pointer;
+}
+
+.current-color {
+    border-width: 0.1em;
+    margin: 0.5em 0.5em 0.5em 0.5em;
+}
+
+.color-picker {
+    z-index: 9999;
+    position: absolute;
+    display: inline-block;
+    left: 4em;
+    top: 0em;
+    padding: 0.45em 0.45em 0.45em 0.45em;
+    background: white;
+    border: 1px solid black;
+}

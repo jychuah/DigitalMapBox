@@ -12,7 +12,6 @@ export interface ViewPort {
 export interface Vector {
   p0: Point,
   p1: Point
-  color: string,
   width: number
 }
 
@@ -35,6 +34,6 @@ export interface ServerState {
   hostname: string,
   ip: string,
   views: View[ ],
-  global: State,
+  global: View,
   currentView: string
 }

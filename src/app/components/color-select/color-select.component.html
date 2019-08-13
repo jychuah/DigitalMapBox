@@ -1,3 +1,7 @@
-<p>
-  color-select works!
-</p>
+<div class="swatch current-color" [style.background-color]="color" (click)="togglePicker()"></div>
+<div *ngIf="picker" class="color-picker">
+  <div *ngFor="let swatch of swatches" 
+    class="swatch" 
+    [style.background-color]="swatch" 
+    (click)="selectSwatch(swatch)"></div>
+</div>

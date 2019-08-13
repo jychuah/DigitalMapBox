@@ -15,21 +15,24 @@ export class MapSocketService {
     ip: "",
     hostname: "",
     global: {
-      vectors: [ ],
-      viewport: {
-        center: {
-          x: 0,
-          y: 0
-        },
-        scale: 1.0
+      name: "global",
+      color: "#ffffff",
+        state: {
+        vectors: [ ],
+        viewport: {
+          center: {
+            x: 0,
+            y: 0
+          },
+          scale: 1.0
+        }
       }
     },
     views: [ ],
     currentView: ""
   }
-  public penColor: string = "white";
   public image: any = new Image();
-  public current: State = this.server.global;
+  public current: View = this.server.global;
 
   constructor(public events: Events) { 
     this.url = window.location.origin.slice(0, -(window.location.port.length + 1)) + ":3000";
@@ -55,10 +58,10 @@ export class MapSocketService {
         console.log("Loading", this.image.src);
       }
       if (data.event == "viewport") {
-        this.current.viewport = data.data;
+        this.current.state.viewport = data.data;
       }
       if (data.event == "drawing") {
-        this.current.vectors.push(data.data);
+        this.current.state.vectors.push(data.data);
       }
       if (data.event == "changeview") {
         this.setCurrentView(data.data);
@@ -76,11 +79,14 @@ export class MapSocketService {
   
   setCurrentView(viewname: string = "") {
     this.server.currentView = viewname;
-    if (!viewname || viewname.length == 0) {
-      this.current = this.server.global;
-    } else {
-      this.current = this.server.views.find((view) => view.name == viewname).state;
-    }
+    this.current = this.getView(viewname);
     this.events.publish("redraw");
+  }
+
+  getView(viewname: string = null) {
+    if (!viewname || viewname.length == 0) {
+      return this.server.global;
+    }
+    return this.server.views.find((view) => view.name == viewname);
   }
 }

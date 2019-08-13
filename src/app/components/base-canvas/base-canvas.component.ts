@@ -59,22 +59,22 @@ export class BaseCanvasComponent implements AfterViewInit {
       this.platform.height() / 2
     )
     this.context.scale(
-      this.maps.current.viewport.scale, 
-      this.maps.current.viewport.scale
+      this.maps.current.state.viewport.scale, 
+      this.maps.current.state.viewport.scale
     )
     this.context.translate(
-      -this.maps.current.viewport.center.x,
-      -this.maps.current.viewport.center.y
+      -this.maps.current.state.viewport.center.x,
+      -this.maps.current.state.viewport.center.y
     );
   }
 
   getLocalPoint(p: Point) : Point {
     p.x -= this.platform.width() / 2;
     p.y -= this.platform.height() / 2;
-    p.x /= this.maps.current.viewport.scale;
-    p.y /= this.maps.current.viewport.scale;
-    p.x += this.maps.current.viewport.center.x;
-    p.y += this.maps.current.viewport.center.y;
+    p.x /= this.maps.current.state.viewport.scale;
+    p.y /= this.maps.current.state.viewport.scale;
+    p.x += this.maps.current.state.viewport.center.x;
+    p.y += this.maps.current.state.viewport.center.y;
     return p;
   }
 

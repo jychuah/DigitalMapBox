@@ -1,0 +1,9 @@
+@import '../../theme/variables.scss';
+
+ion-icon {
+    width: 2em;
+}
+ion-icon:hover {
+    color: black;
+    cursor: pointer;
+}

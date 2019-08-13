@@ -11,7 +11,20 @@ const ip = require('ip');
 const extensions = [ 'png', 'jpg', '.jpeg' ];
 
 var server = {
-  global: generateState(),
+  global: {
+    name: "global",
+    color: "#ffffff",
+    state: {
+      vectors: [ ],
+      viewport: {
+        center: {
+          x: 0,
+          y: 0
+        },
+        scale: 1.0
+      }
+    }
+  },
   views: [ ],
   currentView: "",
   ip: ip.address(),
@@ -21,20 +34,7 @@ var server = {
 
 const stateFields = [ 'path', 'vectors', 'viewport', 'views', 'currentView' ];
 
-function generateState() {
-  return {
-    vectors: [ ],
-    viewport: {
-      center: {
-        x: 0,
-        y: 0
-      },
-      scale: 1.0
-    }
-  }
-}
-
-function getCurrentViewState() {
+function getCurrentView() {
   if (!server.currentView || server.currentView.length == 0) {
     return server.global;
   }
@@ -46,7 +46,7 @@ function getCurrentViewState() {
   if (!targetView) {
     console.error("Could not find view", viewname);
   }
-  return targetView.state;
+  return targetView;
 }
 
 loadServerState();
@@ -139,8 +139,8 @@ function imageLoadHandler(socket, path) {
 
 
 function drawingHandler(socket, vector) {
-  let state = getCurrentViewState();
-  state.vectors.push(vector);
+  let view = getCurrentView();
+  view.state.vectors.push(vector);
   saveServerState();
   broadcast(socket, "drawing", vector);
 }
@@ -151,8 +151,8 @@ function syncHandler(socket) {
 }
 
 function viewportHandler(socket, viewport) {
-  let state = getCurrentViewState();
-  state.viewport = viewport;
+  let view = getCurrentView();
+  view.state.viewport = viewport;
   saveServerState();
   console.log("Viewport change", viewport);
   broadcast(socket, "viewport", viewport);

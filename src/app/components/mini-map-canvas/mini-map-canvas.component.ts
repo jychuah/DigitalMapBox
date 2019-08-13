@@ -1,4 +1,4 @@
-import { Component, AfterViewInit, ElementRef } from '@angular/core';
+import { Component, AfterViewInit, ElementRef, OnInit } from '@angular/core';
 import { BaseCanvasComponent } from '../base-canvas/base-canvas.component';
 import { Events, Platform } from '@ionic/angular';
 import { MapSocketService } from '../../map-socket.service';
@@ -9,7 +9,7 @@ import { ViewPort, Point } from '../../types';
   templateUrl: './mini-map-canvas.component.html',
   styleUrls: ['./mini-map-canvas.component.scss'],
 })
-export class MiniMapCanvasComponent extends BaseCanvasComponent implements AfterViewInit {
+export class MiniMapCanvasComponent extends BaseCanvasComponent implements AfterViewInit, OnInit {
   dx: number = 0;
   dy: number = 0;
   dWidth: number = 0;
@@ -55,8 +55,9 @@ export class MiniMapCanvasComponent extends BaseCanvasComponent implements After
     });
   }
   
-  OnInit() {
-    this.refreshFromEvent(); 
+  ngOnInit() {
+    this.localView = this.maps.current.state.viewport;
+    this.rangeSlider = this.getRangeSlider(this.maps.current.state.viewport.scale);
   }
 
   ngAfterViewInit() {
@@ -64,15 +65,15 @@ export class MiniMapCanvasComponent extends BaseCanvasComponent implements After
   }
 
   refreshFromEvent() {
-    this.localView = this.maps.current.viewport;
-    this.rangeSlider = this.getRangeSlider(this.maps.current.viewport.scale);
+    this.localView = this.maps.current.state.viewport;
+    this.rangeSlider = this.getRangeSlider(this.maps.current.state.viewport.scale);
     this.redraw();    
   }
 
   scaleChange($event) {
     let result = Math.exp(this.minv + this.sliderScale * (this.rangeSlider - this.minp));
-    this.maps.current.viewport.scale = result;
-    this.maps.emit("viewport", this.maps.current.viewport);
+    this.maps.current.state.viewport.scale = result;
+    this.maps.emit("viewport", this.maps.current.state.viewport);
     this.events.publish("viewport");
     this.redraw();
   }
@@ -115,8 +116,8 @@ export class MiniMapCanvasComponent extends BaseCanvasComponent implements After
 
   onMouseUp(e) {
     if (this.dragging) {
-      this.maps.current.viewport = this.localView;
-      this.maps.emit("viewport", this.maps.current.viewport);
+      this.maps.current.state.viewport = this.localView;
+      this.maps.emit("viewport", this.maps.current.state.viewport);
       this.events.publish("viewport");
     }
     this.dragging = false;
@@ -129,10 +130,10 @@ export class MiniMapCanvasComponent extends BaseCanvasComponent implements After
   }
 
   calculateLocalRect() {
-    this.localRect.x = (-this.platform.width() / 2 / this.maps.current.viewport.scale + this.localView.center.x) * this.scale + this.dx;
-    this.localRect.y = (-this.platform.height() / 2 / this.maps.current.viewport.scale + this.localView.center.y) * this.scale + this.dy;
-    this.localRect.width = this.platform.width() * this.scale / this.maps.current.viewport.scale;
-    this.localRect.height = this.platform.height() * this.scale / this.maps.current.viewport.scale;
+    this.localRect.x = (-this.platform.width() / 2 / this.maps.current.state.viewport.scale + this.localView.center.x) * this.scale + this.dx;
+    this.localRect.y = (-this.platform.height() / 2 / this.maps.current.state.viewport.scale + this.localView.center.y) * this.scale + this.dy;
+    this.localRect.width = this.platform.width() * this.scale / this.maps.current.state.viewport.scale;
+    this.localRect.height = this.platform.height() * this.scale / this.maps.current.state.viewport.scale;
   }
 
   redraw() {
@@ -153,7 +154,7 @@ export class MiniMapCanvasComponent extends BaseCanvasComponent implements After
     this.dWidth = this.maps.image.width * this.scale;
     this.dHeight = this.maps.image.height * this.scale;
     this.context.drawImage(this.maps.image, 0, 0);
-    this.context.strokeStyle = "white";
+    this.context.strokeStyle = this.maps.current.color;
     this.context.lineWidth = 3;
     this.calculateLocalRect();
     this.context.setTransform(1, 0, 0, 1, 0, 0);

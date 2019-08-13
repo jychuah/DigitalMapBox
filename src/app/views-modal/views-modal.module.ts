@@ -6,6 +6,7 @@ import { Routes, RouterModule } from '@angular/router';
 import { IonicModule } from '@ionic/angular';
 
 import { ViewsModalPage } from './views-modal.page';
+import { CanvasModule } from '../components/canvas.module';
 
 const routes: Routes = [
   {
@@ -16,6 +17,7 @@ const routes: Routes = [
 
 @NgModule({
   imports: [
+    CanvasModule,
     CommonModule,
     FormsModule,
     IonicModule,

@@ -1,6 +1,8 @@
 import { Component, OnInit } from '@angular/core';
-import { View, State } from '../types';
+import { View } from '../types';
 import { MapSocketService } from '../map-socket.service';
+import { Events } from '@ionic/angular';
+
 @Component({
   selector: 'app-views-modal',
   templateUrl: './views-modal.page.html',
@@ -8,7 +10,7 @@ import { MapSocketService } from '../map-socket.service';
 })
 export class ViewsModalPage implements OnInit {
 
-  constructor(public maps: MapSocketService) { }
+  constructor(public maps: MapSocketService, public events: Events) { }
 
   ngOnInit() {
   }
@@ -18,11 +20,22 @@ export class ViewsModalPage implements OnInit {
       name: name,
       color: color,
       state: {
-        viewport: JSON.parse(JSON.stringify(this.maps.current.viewport)),
+        viewport: JSON.parse(JSON.stringify(this.maps.current.state.viewport)),
         vectors: [ ]
       }
     }
-
   }
 
+  selectColor($event, viewname: string) {
+    this.maps.getView(viewname).color = $event;
+    this.events.publish("redraw");
+  }
+
+  selectView(viewname: string) {
+    console.log("Selected view", viewname);
+  }
+
+  newView() {
+    
+  }
 }
