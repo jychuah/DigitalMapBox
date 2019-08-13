@@ -2,6 +2,7 @@ import { Component, AfterViewInit } from '@angular/core';
 import { MapSocketService } from '../map-socket.service';
 import { Platform, ModalController } from '@ionic/angular';
 import { FileModalPage } from '../file-modal/file-modal.page';
+import { ViewsModalPage } from '../views-modal/views-modal.page';
 import { ToastController, Events } from '@ionic/angular';
 @Component({
   selector: 'app-home',
@@ -42,6 +43,21 @@ export class HomePage implements AfterViewInit {
     await modal.onWillDismiss();
   }
 
+  async presentViewsModal() {
+    const modal = await this.modalController.create({
+      component: ViewsModalPage,
+    });
+    await modal.present();
+    await modal.onWillDismiss();
+  }
+
+  currentViewInfo() {
+    if (this.maps.server.currentView && this.maps.server.currentView.length) {
+      return this.maps.server.currentView;
+    }
+    return "(Global)";
+  }
+
   saveMetadata() {
     this.saving = true;
     this.maps.emit('save');
@@ -52,15 +68,15 @@ export class HomePage implements AfterViewInit {
   }
 
   filenameInfo() {
-    if (!this.maps.state.path || !this.maps.state.path.length) {
+    if (!this.maps.server.path || !this.maps.server.path.length) {
       return "(None)";
     }
-    return this.maps.state.path;
+    return this.maps.server.path;
   }
 
   connectionInfo() {
     if (!this.ui) {
-      return this.maps.state.hostname + " (" + this.maps.state.ip + ")";
+      return this.maps.server.hostname + " (" + this.maps.server.ip + ")";
     }
     return ((this.maps.socket.connected) ? "Connected to " : "Disconnected from ") + this.maps.url;
   }

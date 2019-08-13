@@ -64,15 +64,15 @@ export class MiniMapCanvasComponent extends BaseCanvasComponent implements After
   }
 
   refreshFromEvent() {
-    this.localView = this.maps.state.viewport;
-    this.rangeSlider = this.getRangeSlider(this.maps.state.viewport.scale);
+    this.localView = this.maps.current.viewport;
+    this.rangeSlider = this.getRangeSlider(this.maps.current.viewport.scale);
     this.redraw();    
   }
 
   scaleChange($event) {
     let result = Math.exp(this.minv + this.sliderScale * (this.rangeSlider - this.minp));
-    this.maps.state.viewport.scale = result;
-    this.maps.emit("viewport", this.maps.state.viewport);
+    this.maps.current.viewport.scale = result;
+    this.maps.emit("viewport", this.maps.current.viewport);
     this.events.publish("viewport");
     this.redraw();
   }
@@ -115,8 +115,8 @@ export class MiniMapCanvasComponent extends BaseCanvasComponent implements After
 
   onMouseUp(e) {
     if (this.dragging) {
-      this.maps.state.viewport = this.localView;
-      this.maps.emit("viewport", this.maps.state.viewport);
+      this.maps.current.viewport = this.localView;
+      this.maps.emit("viewport", this.maps.current.viewport);
       this.events.publish("viewport");
     }
     this.dragging = false;
@@ -129,10 +129,10 @@ export class MiniMapCanvasComponent extends BaseCanvasComponent implements After
   }
 
   calculateLocalRect() {
-    this.localRect.x = (-this.platform.width() / 2 / this.maps.state.viewport.scale + this.localView.center.x) * this.scale + this.dx;
-    this.localRect.y = (-this.platform.height() / 2 / this.maps.state.viewport.scale + this.localView.center.y) * this.scale + this.dy;
-    this.localRect.width = this.platform.width() * this.scale / this.maps.state.viewport.scale;
-    this.localRect.height = this.platform.height() * this.scale / this.maps.state.viewport.scale;
+    this.localRect.x = (-this.platform.width() / 2 / this.maps.current.viewport.scale + this.localView.center.x) * this.scale + this.dx;
+    this.localRect.y = (-this.platform.height() / 2 / this.maps.current.viewport.scale + this.localView.center.y) * this.scale + this.dy;
+    this.localRect.width = this.platform.width() * this.scale / this.maps.current.viewport.scale;
+    this.localRect.height = this.platform.height() * this.scale / this.maps.current.viewport.scale;
   }
 
   redraw() {

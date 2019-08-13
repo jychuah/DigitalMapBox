@@ -10,43 +10,70 @@ const ip = require('ip');
 
 const extensions = [ 'png', 'jpg', '.jpeg' ];
 
-const hostname = os.hostname();
-const ipaddress =  ip.address();
+var server = {
+  global: generateState(),
+  views: [ ],
+  currentView: "",
+  ip: ip.address(),
+  hostname: os.hostname(),
+  path: ""
+} 
 
-var state = { 
-  path: "",
-  vectors: [ ],
-  viewport: {
-    center: {
-      x: 0,
-      y: 0
-    },
-    scale: 1.0
-  },
-};
-const stateFields = [ 'path', 'vectors', 'viewport' ];
+const stateFields = [ 'path', 'vectors', 'viewport', 'views', 'currentView' ];
 
-loadState();
+function generateState() {
+  return {
+    vectors: [ ],
+    viewport: {
+      center: {
+        x: 0,
+        y: 0
+      },
+      scale: 1.0
+    }
+  }
+}
+
+function getCurrentViewState() {
+  if (!server.currentView || server.currentView.length == 0) {
+    return server.global;
+  }
+  let targetView = server.views.find(
+    (view) => {
+      return view.name == server.currentView;
+    }
+  )
+  if (!targetView) {
+    console.error("Could not find view", viewname);
+  }
+  return targetView.state;
+}
+
+loadServerState();
 
 app.use(express.static(__dirname + '/public'));
 
-function loadState() {
-  loadMetadata("/state");
-  if (state.path && state.path.length) {
-    loadMetadata(state.path);
+function loadServerState() {
+  loadMetadata("/server");
+  if (server.path && server.path.length) {
+    loadMetadata(server.path);
+    console.log("server.metadata.json loaded");
   }
-  console.log("state.metadata.json loaded");
 }
 
-function saveState() {
-  saveMetadata("/state");
+function saveServerState() {
+  saveMetadata("/server");
 }
 
 function loadMetadata(path) {
   path = "./public" + path + ".metadata.json";
   try {
     if (fs.existsSync(path)) {
-      state = JSON.parse(fs.readFileSync(path));
+      let meta = JSON.parse(fs.readFileSync(path));
+      let oldServer = server; 
+      server = meta;
+      server.hostname = oldServer.hostname,
+      server.ip = oldServer.ip;
     }
     console.log("Loaded metadata for", path);
   } catch (err) {
@@ -56,10 +83,10 @@ function loadMetadata(path) {
 
 function saveMetadata(path) {
   path = "./public" + path + ".metadata.json";
-  fs.writeFile(path, JSON.stringify(state), (err) => {
+  fs.writeFile(path, JSON.stringify(server), (err) => {
     if (err) {
       console.log("Error writing file", err);
-    }
+    } 
   });
 }
 
@@ -102,57 +129,63 @@ function fileListHandler(socket, path) {
 }
 
 function imageLoadHandler(socket, path) {
-  state.path = path;
+  server.path = path;
   console.log("Image Load", path);
   loadMetadata(path);
-  saveState();
-  broadcast(socket, 'sync', state);
+  saveServerState();
+  broadcast(socket, 'sync', server);
   syncHandler(socket);
 }
 
-function drawingHandler(socket, data) {
-  state.vectors.push(data);
-  saveState();
-  broadcast(socket, "drawing", data);
+
+function drawingHandler(socket, vector) {
+  let state = getCurrentViewState();
+  state.vectors.push(vector);
+  saveServerState();
+  broadcast(socket, "drawing", vector);
 }
 
 function syncHandler(socket) {
-  let data = {
-    ip: ipaddress,
-    hostname: hostname
-  }
-  stateFields.forEach(
-    (field) => {
-      data[field] = state[field];
-    }
-  )
-  console.log("Sync", data);
-  emit(socket, 'sync', data);
+  console.log("Sync", server);
+  emit(socket, 'sync', server);
 }
 
 function viewportHandler(socket, viewport) {
+  let state = getCurrentViewState();
   state.viewport = viewport;
-  saveState();
+  saveServerState();
   console.log("Viewport change", viewport);
   broadcast(socket, "viewport", viewport);
 }
 
 function saveHandler(socket) {
-  if (state.path && state.path.length) {
-    saveMetadata(state.path);
-    saveState();
-    console.log("Saved metadata for", state.path);
+  if (server.path && server.path.length) {
+    saveMetadata(server.path);
+    saveServerState();
+    console.log("Saved metadata for", server.path);
     emit(socket, "savecomplete");
   }
 }
 
+function newViewHandler(socket, view) {
+  server.views.push(view);
+  broadcast(socket, "newview", view);
+}
+
+function changeViewHandler(socket, viewname) {
+  server.currentView = viewname;
+  broadcast(socket, "changeview", viewname);
+}
+
 function onConnection(socket){
-  socket.on('drawing', (data) => drawingHandler(socket, data));
+  socket.on('drawing', (vector) => drawingHandler(socket, vector));
   socket.on('filelist', (path) => fileListHandler(socket, path));
   socket.on('imageload', (path) => imageLoadHandler(socket, path));
   socket.on('sync', () => syncHandler(socket));
   socket.on('viewport', (viewport) => viewportHandler(socket, viewport));
   socket.on('save', () => saveHandler(socket));
+  socket.on('newview', (view) => newViewHandler(socket, view));
+  socket.on('changeview', (viewname) => changeViewHandler(socket, viewname));
   syncHandler(socket);
 }
 io.on('connection', onConnection);

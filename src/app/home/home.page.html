@@ -12,6 +12,12 @@
 <ion-fab class="ui-open" vertical="bottom" horizontal="end" slot="fixed" *ngIf="ui">
   <ion-fab-button
     color="light"
+    attr.data-desc="{{ currentViewInfo() }}"
+    *ngIf="maps.imageLoaded()"
+    (click)="presentViewsModal()">
+  </ion-fab-button>
+  <ion-fab-button
+    color="light"
     attr.data-desc="{{ saving ? 'Saving' : 'Save' }}"
     *ngIf="maps.imageLoaded()"
     (click)="saveMetadata()">

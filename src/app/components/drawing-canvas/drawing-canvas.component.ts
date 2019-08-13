@@ -43,7 +43,7 @@ export class DrawingCanvasComponent extends BaseCanvasComponent implements After
     if (!emit) { return; }
 
     this.maps.emit('drawing', vector);
-    this.maps.state.vectors.push(vector);
+    this.maps.current.vectors.push(vector);
   }
 
   onMouseDown(e) {
@@ -68,7 +68,7 @@ export class DrawingCanvasComponent extends BaseCanvasComponent implements After
       p0: this.current,
       p1: this.eventToLocalPoint(e),
       color: this.maps.penColor,
-      width: 2 / this.maps.state.viewport.scale
+      width: 2 / this.maps.current.viewport.scale
     } 
     return vector;
   }
@@ -92,7 +92,7 @@ export class DrawingCanvasComponent extends BaseCanvasComponent implements After
 
   redraw() {
     super.redraw();
-    this.maps.state.vectors.forEach(
+    this.maps.current.vectors.forEach(
       (vector) => {
         this.drawLine(vector);
       }

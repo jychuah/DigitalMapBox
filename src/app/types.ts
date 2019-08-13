@@ -17,12 +17,24 @@ export interface Vector {
 }
 
 export interface State {
-  path: string,
   vectors: Vector[ ],
   viewport: {
     center: Point,
     scale: number
   },
+}
+
+export interface View {
+  name: string,
+  state: State,
+  color: string
+}
+
+export interface ServerState {
+  path: string,
   hostname: string,
   ip: string,
+  views: View[ ],
+  global: State,
+  currentView: string
 }

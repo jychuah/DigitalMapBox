@@ -6,6 +6,7 @@ import { MapCanvasComponent } from './map-canvas/map-canvas.component';
 import { DrawingCanvasComponent } from './drawing-canvas/drawing-canvas.component';
 import { MapNavComponent } from './map-nav/map-nav.component';
 import { MiniMapCanvasComponent} from './mini-map-canvas/mini-map-canvas.component';
+import { ColorSelectComponent } from './color-select/color-select.component';
 import { FormsModule } from '@angular/forms';
 
 @NgModule({
@@ -21,14 +22,16 @@ import { FormsModule } from '@angular/forms';
     MapNavComponent,
     BaseCanvasComponent,
     MapCanvasComponent,
-    MiniMapCanvasComponent
+    MiniMapCanvasComponent,
+    ColorSelectComponent
   ],
   exports: [
     DrawingCanvasComponent,
     MapNavComponent,
     BaseCanvasComponent,
     MapCanvasComponent,
-    MiniMapCanvasComponent
+    MiniMapCanvasComponent,
+    ColorSelectComponent
   ]
 })
 export class CanvasModule {}
