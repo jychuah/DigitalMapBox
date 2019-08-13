@@ -27,6 +27,7 @@ export class MapSocketService {
   public image: any = new Image();
 
   constructor(public events: Events) { 
+    this.url = window.location.origin.slice(0, -(window.location.port.length + 1)) + ":3000";
     this.connect();
     this.image.onload = () => {
       console.log("Image Loaded. Publishing redraw event.");
@@ -34,9 +35,8 @@ export class MapSocketService {
     }
   }
 
-  connect(url: string = "http://localhost:3000") {
-    console.log("Connecting to", url);
-    this.url = url;
+  connect() {
+    console.log("Connecting to", this.url);
     this.socket = io(this.url);
     this.socket.on("DigitalMapBox", (data) => {
       if (data.event == "sync") {
