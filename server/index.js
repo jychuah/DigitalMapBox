@@ -10,7 +10,10 @@ const ip = require('ip');
 
 const extensions = [ 'png', 'jpg', '.jpeg' ];
 
-const state = { 
+const hostname = os.hostname();
+const ipaddress =  ip.address();
+
+var state = { 
   path: "",
   vectors: [ ],
   viewport: {
@@ -20,11 +23,45 @@ const state = {
     },
     scale: 1.0
   },
-  hostname: os.hostname(),
-  ip: ip.address(),
 };
+const stateFields = [ 'path', 'vectors', 'viewport' ];
+
+loadState();
 
 app.use(express.static(__dirname + '/public'));
+
+function loadState() {
+  loadMetadata("/state");
+  if (state.path && state.path.length) {
+    loadMetadata(state.path);
+  }
+  console.log("state.metadata.json loaded");
+}
+
+function saveState() {
+  saveMetadata("/state");
+}
+
+function loadMetadata(path) {
+  path = "./public" + path + ".metadata.json";
+  try {
+    if (fs.existsSync(path)) {
+      state = JSON.parse(fs.readFileSync(path));
+    }
+    console.log("Loaded metadata for", path);
+  } catch (err) {
+    console.log("Error loading metadata", err);
+  }
+}
+
+function saveMetadata(path) {
+  path = "./public" + path + ".metadata.json";
+  fs.writeFile(path, JSON.stringify(state), (err) => {
+    if (err) {
+      console.log("Error writing file", err);
+    }
+  });
+}
 
 function broadcast(socket, event, data) {
   let payload = {
@@ -67,24 +104,46 @@ function fileListHandler(socket, path) {
 function imageLoadHandler(socket, path) {
   state.path = path;
   console.log("Image Load", path);
+  loadMetadata(path);
+  saveState();
   broadcast(socket, 'sync', state);
   syncHandler(socket);
 }
 
 function drawingHandler(socket, data) {
   state.vectors.push(data);
+  saveState();
   broadcast(socket, "drawing", data);
 }
 
 function syncHandler(socket) {
-  console.log("Sync", state);
-  emit(socket, 'sync', state);
+  let data = {
+    ip: ipaddress,
+    hostname: hostname
+  }
+  stateFields.forEach(
+    (field) => {
+      data[field] = state[field];
+    }
+  )
+  console.log("Sync", data);
+  emit(socket, 'sync', data);
 }
 
 function viewportHandler(socket, viewport) {
   state.viewport = viewport;
+  saveState();
   console.log("Viewport change", viewport);
   broadcast(socket, "viewport", viewport);
+}
+
+function saveHandler(socket) {
+  if (state.path && state.path.length) {
+    saveMetadata(state.path);
+    saveState();
+    console.log("Saved metadata for", state.path);
+    emit(socket, "savecomplete");
+  }
 }
 
 function onConnection(socket){
@@ -93,6 +152,7 @@ function onConnection(socket){
   socket.on('imageload', (path) => imageLoadHandler(socket, path));
   socket.on('sync', () => syncHandler(socket));
   socket.on('viewport', (viewport) => viewportHandler(socket, viewport));
+  socket.on('save', () => saveHandler(socket));
   syncHandler(socket);
 }
 io.on('connection', onConnection);

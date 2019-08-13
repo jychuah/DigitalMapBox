@@ -54,10 +54,13 @@ export class MiniMapCanvasComponent extends BaseCanvasComponent implements After
       this.refreshFromEvent();
     });
   }
+  
+  OnInit() {
+    this.refreshFromEvent(); 
+  }
 
   ngAfterViewInit() {
     super.ngAfterViewInit();
-    this.refreshFromEvent();
   }
 
   refreshFromEvent() {
@@ -133,6 +136,7 @@ export class MiniMapCanvasComponent extends BaseCanvasComponent implements After
   }
 
   redraw() {
+    if (!this.maps.imageLoaded() || !this.maps.image.complete) { return; }
     this.context.setTransform(1, 0, 0, 1, 0, 0);
     this.context.style = "black";
     this.context.fillRect(0, 0, this.canvas.width, this.canvas.height);

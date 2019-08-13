@@ -35,6 +35,10 @@ export class MapSocketService {
     }
   }
 
+  imageLoaded() : boolean {
+    return this.state.path && this.state.path.length > 0;
+  }
+
   connect() {
     console.log("Connecting to", this.url);
     this.socket = io(this.url);

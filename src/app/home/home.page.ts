@@ -2,7 +2,7 @@ import { Component, AfterViewInit } from '@angular/core';
 import { MapSocketService } from '../map-socket.service';
 import { Platform, ModalController } from '@ionic/angular';
 import { FileModalPage } from '../file-modal/file-modal.page';
-import { Events } from '@ionic/angular';
+import { ToastController, Events } from '@ionic/angular';
 @Component({
   selector: 'app-home',
   templateUrl: 'home.page.html',
@@ -10,12 +10,28 @@ import { Events } from '@ionic/angular';
 })
 export class HomePage implements AfterViewInit {
   public ui: boolean = false;
+  public saving: boolean = false;
+
   constructor(private maps: MapSocketService, private platform: Platform,
-              private modalController: ModalController, private events: Events) {
+              private modalController: ModalController, private events: Events,
+              private toast: ToastController) {
   }
 
   ngAfterViewInit() {
     this.maps.emit('sync');
+    this.events.subscribe("savecomplete", () => {
+      this.saving = false;
+      this.toastSaved();
+    });
+  }
+
+  async toastSaved() {
+    const toast = await this.toast.create({
+      message: 'Saved!',
+      duration: 2000,
+      position: "bottom"
+    });
+    toast.present();
   }
 
   async presentFileModal() {
@@ -26,6 +42,10 @@ export class HomePage implements AfterViewInit {
     await modal.onWillDismiss();
   }
 
+  saveMetadata() {
+    this.saving = true;
+    this.maps.emit('save');
+  }
 
   toggleUI() {
     this.ui = !this.ui;
