@@ -26,27 +26,17 @@ var server = {
     }
   },
   views: [ ],
-  currentView: "",
+  currentView: -1,
   ip: ip.address(),
   hostname: os.hostname(),
   path: ""
 } 
 
-const stateFields = [ 'path', 'vectors', 'viewport', 'views', 'currentView' ];
-
 function getCurrentView() {
-  if (!server.currentView || server.currentView.length == 0) {
+  if (server.currentView == -1) {
     return server.global;
   }
-  let targetView = server.views.find(
-    (view) => {
-      return view.name == server.currentView;
-    }
-  )
-  if (!targetView) {
-    console.error("Could not find view", viewname);
-  }
-  return targetView;
+  return server.views[server.currentView];
 }
 
 loadServerState();
@@ -169,12 +159,22 @@ function saveHandler(socket) {
 
 function newViewHandler(socket, view) {
   server.views.push(view);
+  console.log("Received new view", view);
   broadcast(socket, "newview", view);
 }
 
-function changeViewHandler(socket, viewname) {
-  server.currentView = viewname;
-  broadcast(socket, "changeview", viewname);
+function updateViewHandler(socket, viewdata) {
+  let view = server.views[viewdata.index];
+  view.name = viewdata.name;
+  view.color = viewdata.color;
+  console.log("Updating view metadata", viewdata);
+  broadcast(socket, "updateview", viewdata);
+}
+
+function changeViewHandler(socket, viewIndex) {
+  server.currentView = viewIndex;
+  console.log("Changing views", viewIndex);
+  broadcast(socket, "changeview", server.currentView.name);
 }
 
 function onConnection(socket){
@@ -185,9 +185,10 @@ function onConnection(socket){
   socket.on('viewport', (viewport) => viewportHandler(socket, viewport));
   socket.on('save', () => saveHandler(socket));
   socket.on('newview', (view) => newViewHandler(socket, view));
-  socket.on('changeview', (viewname) => changeViewHandler(socket, viewname));
+  socket.on('changeview', (viewIndex) => changeViewHandler(socket, viewIndex));
+  socket.on('updateview', (viewData) => updateViewHandler(socket, viewData))
   syncHandler(socket);
 }
-io.on('connection', onConnection);
 
+io.on('connection', onConnection);
 http.listen(port, () => console.log('listening on port ' + port));

@@ -52,10 +52,10 @@ export class HomePage implements AfterViewInit {
   }
 
   currentViewInfo() {
-    if (this.maps.server.currentView && this.maps.server.currentView.length) {
-      return this.maps.server.currentView;
+    if (this.maps.server.currentView == -1) {
+      return "(Global)"
     }
-    return "(Global)";
+    return this.maps.current.name;
   }
 
   saveMetadata() {

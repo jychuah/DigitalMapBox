@@ -35,5 +35,5 @@ export interface ServerState {
   ip: string,
   views: View[ ],
   global: View,
-  currentView: string
+  currentView: number
 }

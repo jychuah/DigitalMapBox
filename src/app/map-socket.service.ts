@@ -29,7 +29,7 @@ export class MapSocketService {
       }
     },
     views: [ ],
-    currentView: ""
+    currentView: -1
   }
   public image: any = new Image();
   public current: View = this.server.global;
@@ -54,7 +54,7 @@ export class MapSocketService {
       if (data.event == "sync") {
         this.server = data.data;
         this.image.src = this.url + this.server.path;
-        this.setCurrentView();
+        this.current = this.getView(this.server.currentView);
         console.log("Loading", this.image.src);
       }
       if (data.event == "viewport") {
@@ -69,6 +69,12 @@ export class MapSocketService {
       if (data.event == "newview") {
         this.server.views.push(data.data);
       }
+      if (data.event == "updateview") {
+        let view = this.getView(data.data.index);
+        view.name = data.data.name;
+        view.color = data.data.color;
+        this.events.publish("redraw");
+      }
       this.events.publish(data.event, data.data);
     });
   }
@@ -77,16 +83,32 @@ export class MapSocketService {
     this.socket.emit(event, data);
   }
   
-  setCurrentView(viewname: string = "") {
-    this.server.currentView = viewname;
-    this.current = this.getView(viewname);
+  setCurrentView(viewIndex: number = -1) {
+    this.server.currentView = viewIndex;
+    this.current = this.getView(viewIndex);
+    this.emit("changeview", viewIndex);
+    this.events.publish("viewport");
     this.events.publish("redraw");
   }
 
-  getView(viewname: string = null) {
-    if (!viewname || viewname.length == 0) {
+  getView(viewIndex: number = -1) {
+    if (viewIndex == -1) {
       return this.server.global;
     }
-    return this.server.views.find((view) => view.name == viewname);
+    return this.server.views[viewIndex];
+  }
+
+  newView(view) {
+    this.server.views.push(view);
+    this.emit("newview", view);
+  }
+
+  updateView(viewIndex) {
+    let view = this.getView(viewIndex);
+    this.emit("updateview", {
+      index: viewIndex,
+      name: view.name,
+      color: view.color
+    });
   }
 }
