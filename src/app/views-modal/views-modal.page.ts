@@ -23,10 +23,6 @@ export class ViewsModalPage implements OnInit {
     this.events.publish("redraw");
   }
 
-  selectView(viewIndex: number) {
-    console.log("Selected view", viewIndex);
-  }
-
   async presentAlertViewName(callback, viewname: string = "") {
     const alert = await this.alerts.create(
       {

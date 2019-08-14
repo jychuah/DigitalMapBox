@@ -54,7 +54,7 @@ export class MapSocketService {
       if (data.event == "sync") {
         this.server = data.data;
         this.image.src = this.url + this.server.path;
-        this.current = this.getView(this.server.currentView);
+        this.setCurrentView(this.server.currentView);
         console.log("Loading", this.image.src);
       }
       if (data.event == "viewport") {
@@ -63,7 +63,7 @@ export class MapSocketService {
       if (data.event == "drawing") {
         this.current.state.vectors.push(data.data);
       }
-      if (data.event == "changeview") {
+      if (data.event == "setview") {
         this.setCurrentView(data.data);
       }
       if (data.event == "newview") {
@@ -82,11 +82,15 @@ export class MapSocketService {
   emit(event: string, data: any = "") {
     this.socket.emit(event, data);
   }
-  
+
   setCurrentView(viewIndex: number = -1) {
     this.server.currentView = viewIndex;
     this.current = this.getView(viewIndex);
-    this.emit("changeview", viewIndex);
+  }
+  
+  changeCurrentView(viewIndex: number = -1) {
+    this.setCurrentView(viewIndex);
+    this.emit("setview", viewIndex);
     this.events.publish("viewport");
     this.events.publish("redraw");
   }

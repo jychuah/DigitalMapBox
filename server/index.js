@@ -171,10 +171,10 @@ function updateViewHandler(socket, viewdata) {
   broadcast(socket, "updateview", viewdata);
 }
 
-function changeViewHandler(socket, viewIndex) {
+function setViewHandler(socket, viewIndex) {
   server.currentView = viewIndex;
   console.log("Changing views", viewIndex);
-  broadcast(socket, "changeview", server.currentView.name);
+  broadcast(socket, "setview", server.currentView.name);
 }
 
 function onConnection(socket){
@@ -185,7 +185,7 @@ function onConnection(socket){
   socket.on('viewport', (viewport) => viewportHandler(socket, viewport));
   socket.on('save', () => saveHandler(socket));
   socket.on('newview', (view) => newViewHandler(socket, view));
-  socket.on('changeview', (viewIndex) => changeViewHandler(socket, viewIndex));
+  socket.on('setview', (viewIndex) => setViewHandler(socket, viewIndex));
   socket.on('updateview', (viewData) => updateViewHandler(socket, viewData))
   syncHandler(socket);
 }
