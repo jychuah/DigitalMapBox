@@ -25,12 +25,6 @@ export class MiniMapCanvasComponent extends BaseCanvasComponent implements After
     scale: 1.0
   }
   dragging: boolean = false;
-  localRect: any = {
-    x: 0,
-    y: 0,
-    width: 0,
-    height: 0
-  }
 
   minp: number = 0;
   maxp: number = 100;
@@ -53,8 +47,12 @@ export class MiniMapCanvasComponent extends BaseCanvasComponent implements After
     this.events.subscribe("viewport", () => {
       this.refreshFromEvent();
     });
+    this.events.subscribe("imageloadcomplete", () => {
+      this.calculateMetrics();
+    });
   }
   
+
   ngOnInit() {
     this.localView = this.maps.current.state.viewport;
     this.rangeSlider = this.getRangeSlider(this.maps.current.state.viewport.scale);
@@ -62,6 +60,17 @@ export class MiniMapCanvasComponent extends BaseCanvasComponent implements After
 
   ngAfterViewInit() {
     super.ngAfterViewInit();
+  }
+
+  calculateMetrics() {
+    this.scale = Math.min(
+      this.canvas.width / this.maps.image.width, 
+      this.canvas.height / this.maps.image.height
+    );
+    this.dx = (this.canvas.width - this.maps.image.width * this.scale) / 2;
+    this.dy = (this.canvas.height - this.maps.image.height * this.scale) / 2;
+    this.dWidth = this.maps.image.width * this.scale;
+    this.dHeight = this.maps.image.height * this.scale;
   }
 
   refreshFromEvent() {
@@ -106,10 +115,11 @@ export class MiniMapCanvasComponent extends BaseCanvasComponent implements After
 
   onMouseDown(e) {
     let click = this.getMinimapPoint(e);
-    if (click.x > this.localRect.x &&
-        click.x < this.localRect.x + this.localRect.width &&
-        click.y > this.localRect.y &&
-        click.y < this.localRect.y + this.localRect.height) {
+    let localRect = this.calculateLocalRect(this.maps.current.state.viewport);
+    if (click.x > localRect.x &&
+        click.x < localRect.x + localRect.width &&
+        click.y > localRect.y &&
+        click.y < localRect.y + localRect.height) {
       this.dragging = true;
     }
   }
@@ -121,6 +131,7 @@ export class MiniMapCanvasComponent extends BaseCanvasComponent implements After
       this.events.publish("viewport");
     }
     this.dragging = false;
+    this.redraw();
   }
 
   onMouseMove(e) {
@@ -129,11 +140,26 @@ export class MiniMapCanvasComponent extends BaseCanvasComponent implements After
     this.redraw();
   }
 
-  calculateLocalRect() {
-    this.localRect.x = (-this.platform.width() / 2 / this.maps.current.state.viewport.scale + this.localView.center.x) * this.scale + this.dx;
-    this.localRect.y = (-this.platform.height() / 2 / this.maps.current.state.viewport.scale + this.localView.center.y) * this.scale + this.dy;
-    this.localRect.width = this.platform.width() * this.scale / this.maps.current.state.viewport.scale;
-    this.localRect.height = this.platform.height() * this.scale / this.maps.current.state.viewport.scale;
+  calculateLocalRect(viewport: ViewPort) {
+    let localRect = { 
+      x: 0,
+      y: 0,
+      width: 0,
+      height: 0
+    };
+    localRect.x = (-this.platform.width() / 2 / viewport.scale + viewport.center.x) * this.scale + this.dx;
+    localRect.y = (-this.platform.height() / 2 / viewport.scale + viewport.center.y) * this.scale + this.dy;
+    localRect.width = this.platform.width() * this.scale / viewport.scale;
+    localRect.height = this.platform.height() * this.scale / viewport.scale;
+    return localRect;
+  }
+
+  drawViewPort(viewport: ViewPort, color: string) {
+    let rect = this.calculateLocalRect(viewport);
+    this.context.strokeStyle = color;
+    this.context.lineWidth = 3;
+    this.context.setTransform(1, 0, 0, 1, 0, 0);
+    this.context.strokeRect(rect.x, rect.y, rect.width, rect.height);
   }
 
   redraw() {
@@ -144,32 +170,28 @@ export class MiniMapCanvasComponent extends BaseCanvasComponent implements After
     if (!this.maps.image.complete) {
       return;
     }
-    this.scale = Math.min(
-      this.canvas.width / this.maps.image.width, 
-      this.canvas.height / this.maps.image.height
-    );
-    this.dx = (this.canvas.width - this.maps.image.width * this.scale) / 2;
-    this.dy = (this.canvas.height - this.maps.image.height * this.scale) / 2;
     this.context.setTransform(this.scale, 0, 0, this.scale, this.dx, this.dy);
-    this.dWidth = this.maps.image.width * this.scale;
-    this.dHeight = this.maps.image.height * this.scale;
     this.context.drawImage(this.maps.image, 0, 0);
-    this.context.strokeStyle = this.maps.current.color;
-    this.context.lineWidth = 3;
-    this.calculateLocalRect();
-    this.context.setTransform(1, 0, 0, 1, 0, 0);
-    this.context.strokeRect(
-      this.localRect.x,
-      this.localRect.y,
-      this.localRect.width,
-      this.localRect.height
-    )
+    if (this.dragging) {
+      this.drawViewPort(this.localView, this.maps.current.color);
+      return;
+    }
+    this.drawViewPort(this.maps.current.state.viewport, this.maps.current.color);
+    if (this.maps.server.currentView == -1) {
+      console.log("Redrawing all viewports");
+      this.maps.server.views.forEach(
+        (view) => {
+          this.drawViewPort(view.state.viewport, view.color + "AA");
+        }
+      )
+    }
   }
 
   onResize() {
     this.canvas.width = this.el.nativeElement.clientWidth;
     this.canvas.height = this.el.nativeElement.clientHeight;
     this.viewscale = this.canvas.width / this.platform.width();
+    this.calculateMetrics();
     this.redraw();
   }
 

@@ -39,6 +39,7 @@ export class MapSocketService {
     this.connect();
     this.image.onload = () => {
       console.log("Image Loaded. Publishing redraw event.");
+      this.events.publish("imageloadcomplete");
       this.events.publish("redraw")
     }
   }
