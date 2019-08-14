@@ -12,7 +12,6 @@ export class BaseCanvasComponent implements AfterViewInit {
   canvas: any;
   context: any;
   background: string = null;
-  mouseLayer: string = null;
 
   constructor(public platform: Platform, 
               public events: Events, 
@@ -39,17 +38,18 @@ export class BaseCanvasComponent implements AfterViewInit {
     this.events.subscribe("viewport", () => {
       this.redraw();
     });
-    if (this.mouseLayer) {
-      this.events.subscribe("mouseDown" + this.mouseLayer, (e) => {
-        this.onMouseDown(e);
-      });
-      this.events.subscribe("mouseUp" + this.mouseLayer, (e) => {
-        this.onMouseUp(e);
-      });
-      this.events.subscribe("mouseMove" + this.mouseLayer, (e) => {
-        this.onMouseMove(e);
-      });
-    }
+  }
+
+  subscribe(mouseEvent: string) {
+    this.events.subscribe("mouseDown" + mouseEvent, (e) => {
+      this.onMouseDown(e);
+    });
+    this.events.subscribe("mouseUp" + mouseEvent, (e) => {
+      this.onMouseUp(e);
+    });
+    this.events.subscribe("mouseMove" + mouseEvent, (e) => {
+      this.onMouseMove(e);
+    });
   }
 
   onMouseDown(e) {

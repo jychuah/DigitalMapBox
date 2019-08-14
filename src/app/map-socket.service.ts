@@ -10,7 +10,7 @@ export class MapSocketService {
   socket: any = null;
   url: string = "http://localhost:3000";
 
-  public mouseLayer: string = null;
+  public mouseEvent: string = null;
   public ui: boolean = false;
 
   public server: ServerState = {

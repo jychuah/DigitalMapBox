@@ -12,6 +12,7 @@ import { Vector, Point } from '../../types';
 })
 export class DrawingCanvasComponent extends BaseCanvasComponent implements AfterViewInit {
   drawing: boolean = false;
+  erasing: boolean = false;
   socketEvents: Observable<any> = null;
   current: Point = {
     x: 0,
@@ -22,7 +23,12 @@ export class DrawingCanvasComponent extends BaseCanvasComponent implements After
               public events: Events,
               public maps: MapSocketService) {
     super(platform, events, maps);
-    this.mouseLayer = "drawing";
+  }
+
+  ngAfterViewInit() {
+    super.ngAfterViewInit();
+    this.subscribe("draw");
+    this.subscribe("erase");
   }
 
   connect() {
@@ -48,11 +54,16 @@ export class DrawingCanvasComponent extends BaseCanvasComponent implements After
   }
 
   onMouseDown(p) {
-    this.drawing = true;
+    if (this.maps.mouseEvent === 'draw') {
+      this.drawing = true;
+    }
+    if (this.maps.mouseEvent === 'erase') {
+      this.erasing = true;
+    }
     this.current = p;
   }
 
-  generateVector(p) : Vector {
+  generateVector(p: Point) : Vector {
     let vector = {
       p0: this.current,
       p1: p,
@@ -61,15 +72,60 @@ export class DrawingCanvasComponent extends BaseCanvasComponent implements After
     return vector;
   }
 
+  pointDistance(p: Point, v: Vector) {
+    var A = p.x - v.p0.x;
+    var B = p.y - v.p0.y;
+    var C = v.p1.x - v.p0.x;
+    var D = v.p1.y - v.p0.y;
+  
+    var dot = A * C + B * D;
+    var len_sq = C * C + D * D;
+    var param = -1;
+    if (len_sq != 0) //in case of 0 length line
+        param = dot / len_sq;
+  
+    var xx, yy;
+  
+    if (param < 0) {
+      xx = v.p0.x;
+      yy = v.p0.y;
+    }
+    else if (param > 1) {
+      xx = v.p1.x;
+      yy = v.p1.y;
+    }
+    else {
+      xx = v.p0.x + param * C;
+      yy = v.p0.y + param * D;
+    }
+  
+    var dx = p.x - xx;
+    var dy = p.y - yy;
+    return Math.sqrt(dx * dx + dy * dy);
+  }
+
   onMouseUp(p) {
-    if (!this.drawing) { return; }
+    if (this.drawing) {
+      this.drawLine(this.generateVector(p), true);
+    }
     this.drawing = false;
-    this.drawLine(this.generateVector(p), true);
+    this.erasing = false;
   }
 
   onMouseMove(p) {
-    if (!this.drawing) { return; }
-    this.drawLine(this.generateVector(p), true);
+    if (this.drawing) {
+      this.drawLine(this.generateVector(p), true);
+    }
+    if (this.erasing) {
+      let remaining = this.maps.current.state.vectors.filter(
+        (vector) => {
+          return this.pointDistance(p, vector) > 20 
+              / this.maps.current.state.viewport.scale;
+        }
+      );
+      this.maps.current.state.vectors = remaining;
+      this.redraw();
+    }
     this.current = p;
   }
 

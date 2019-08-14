@@ -75,4 +75,15 @@ export class HomePage implements AfterViewInit {
     }
     return ((this.maps.socket.connected) ? "Connected to " : "Disconnected from ") + this.maps.url;
   }
+
+  layerStyle(mouseEvent: string) {
+    if (mouseEvent === this.maps.mouseEvent) {
+      return "primary";
+    }
+    return "light"
+  }
+
+  setMouseEvents(mouseEvent: string) {
+    this.maps.mouseEvent = mouseEvent;
+  }
 }

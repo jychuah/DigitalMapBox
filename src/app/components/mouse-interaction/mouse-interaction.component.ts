@@ -56,20 +56,20 @@ export class MouseInteractionComponent implements AfterViewInit {
   }
 
   onMouseDown(e) {
-    if (this.maps.mouseLayer) {
-      this.events.publish("mouseDown" + this.maps.mouseLayer, this.getLocalPoint(e));
+    if (this.maps.mouseEvent) {
+      this.events.publish("mouseDown" + this.maps.mouseEvent, this.getLocalPoint(e));
     }
   }
 
   onMouseUp(e) {
-    if (this.maps.mouseLayer) {
-      this.events.publish("mouseUp" + this.maps.mouseLayer, this.getLocalPoint(e));
+    if (this.maps.mouseEvent) {
+      this.events.publish("mouseUp" + this.maps.mouseEvent, this.getLocalPoint(e));
     }
   }
 
   onMouseMove(e) {
-    if (this.maps.mouseLayer) {
-      this.events.publish("mouseMove" + this.maps.mouseLayer, this.getLocalPoint(e));
+    if (this.maps.mouseEvent) {
+      this.events.publish("mouseMove" + this.maps.mouseEvent, this.getLocalPoint(e));
     }
   }
 }

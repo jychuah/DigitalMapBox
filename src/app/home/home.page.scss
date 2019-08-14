@@ -38,9 +38,10 @@ mini-map-canvas {
 }
 
 .ui-open {
-    ion-fab-button[color="light"] {
+    .layer-select,ion-fab-button[color="light"] {
         margin-bottom: 1em;
     }
+
 }
 
 ion-fab-button[data-desc] {

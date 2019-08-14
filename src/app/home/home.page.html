@@ -10,6 +10,22 @@
     <ion-icon name="logo-buffer"></ion-icon>
   </ion-fab-button>
 </ion-fab>
+<ion-fab class="ui-open" vertical="bottom" horizontal="start" slot="fixed" *ngIf="maps.ui">
+  <ion-fab-button
+    class="layer-select"
+    attr.color="{{ layerStyle('draw') }}"
+    (click)="setMouseEvents('draw')"
+    data.desc="Draw">
+    <ion-icon name="create"></ion-icon>
+  </ion-fab-button>
+  <ion-fab-button
+    class="layer-select"
+    attr.color="{{ layerStyle('erase') }}"
+    (click)="setMouseEvents('erase')"
+    data.desc="Erase">
+    <ion-icon name="close"></ion-icon>
+  </ion-fab-button>
+</ion-fab>
 <ion-fab class="ui-open" vertical="bottom" horizontal="end" slot="fixed" *ngIf="maps.ui">
   <ion-fab-button
     color="light"
