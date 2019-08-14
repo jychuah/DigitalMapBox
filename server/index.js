@@ -174,7 +174,7 @@ function updateViewHandler(socket, viewdata) {
 function setViewHandler(socket, viewIndex) {
   server.currentView = viewIndex;
   console.log("Changing views", viewIndex);
-  broadcast(socket, "setview", server.currentView.name);
+  broadcast(socket, "setview", viewIndex);
 }
 
 function onConnection(socket){

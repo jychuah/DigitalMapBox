@@ -178,7 +178,6 @@ export class MiniMapCanvasComponent extends BaseCanvasComponent implements After
     }
     this.drawViewPort(this.maps.current.state.viewport, this.maps.current.color);
     if (this.maps.server.currentView == -1) {
-      console.log("Redrawing all viewports");
       this.maps.server.views.forEach(
         (view) => {
           this.drawViewPort(view.state.viewport, view.color + "AA");

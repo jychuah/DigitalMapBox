@@ -87,13 +87,14 @@ export class MapSocketService {
   setCurrentView(viewIndex: number = -1) {
     this.server.currentView = viewIndex;
     this.current = this.getView(viewIndex);
+    this.events.publish("viewport");
+    this.events.publish("redraw");
+
   }
   
   changeCurrentView(viewIndex: number = -1) {
     this.setCurrentView(viewIndex);
     this.emit("setview", viewIndex);
-    this.events.publish("viewport");
-    this.events.publish("redraw");
   }
 
   getView(viewIndex: number = -1) {
