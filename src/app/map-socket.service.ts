@@ -9,6 +9,7 @@ import { ServerState, State, View } from './types';
 export class MapSocketService {
   socket: any = null;
   url: string = "http://localhost:3000";
+  public ui: boolean = false;
 
   public server: ServerState = {
     path: "",
@@ -116,5 +117,10 @@ export class MapSocketService {
       name: view.name,
       color: view.color
     });
+  }
+
+  toggleUI() {
+    this.ui = !this.ui;
+    this.events.publish("redraw");
   }
 }

@@ -10,7 +10,6 @@ import { ToastController, Events } from '@ionic/angular';
   styleUrls: ['home.page.scss'],
 })
 export class HomePage implements AfterViewInit {
-  public ui: boolean = false;
   public saving: boolean = false;
 
   constructor(private maps: MapSocketService, private platform: Platform,
@@ -63,10 +62,6 @@ export class HomePage implements AfterViewInit {
     this.maps.emit('save');
   }
 
-  toggleUI() {
-    this.ui = !this.ui;
-  }
-
   filenameInfo() {
     if (!this.maps.server.path || !this.maps.server.path.length) {
       return "(None)";
@@ -75,7 +70,7 @@ export class HomePage implements AfterViewInit {
   }
 
   connectionInfo() {
-    if (!this.ui) {
+    if (!this.maps.ui) {
       return this.maps.server.hostname + " (" + this.maps.server.ip + ")";
     }
     return ((this.maps.socket.connected) ? "Connected to " : "Disconnected from ") + this.maps.url;
