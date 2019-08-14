@@ -11,8 +11,8 @@ export class BaseCanvasComponent implements AfterViewInit {
   @ViewChild('canvas', {static: false}) canvasEl: ElementRef;
   canvas: any;
   context: any;
-  previousCall: number = null;
   background: string = null;
+  mouseLayer: string = null;
 
   constructor(public platform: Platform, 
               public events: Events, 
@@ -21,17 +21,6 @@ export class BaseCanvasComponent implements AfterViewInit {
   ngAfterViewInit() {
     this.canvas = this.canvasEl.nativeElement;
     this.context = this.canvas.getContext('2d');
-    this.canvas.addEventListener('mousedown', (e) => this.onMouseDown(e), false);
-    this.canvas.addEventListener('mouseup', (e) => this.onMouseUp(e), false);
-    this.canvas.addEventListener('mouseout', (e) => this.onMouseUp(e), false);
-    this.canvas.addEventListener('mousemove', (e) => this.throttleMouseMove(e), false);
-    
-    //Touch support for mobile devices
-    this.canvas.addEventListener('touchstart', (e) => this.onMouseDown(e), false);
-    this.canvas.addEventListener('touchend', (e) => this.onMouseUp(e), false);
-    this.canvas.addEventListener('touchcancel', (e) => this.onMouseUp(e), false);
-    this.canvas.addEventListener('touchmove', (e) => this.throttleMouseMove(e), false);
-    this.previousCall = new Date().getTime();
     this.platform.ready().then(
       () => {
         this.onResize();
@@ -50,6 +39,26 @@ export class BaseCanvasComponent implements AfterViewInit {
     this.events.subscribe("viewport", () => {
       this.redraw();
     });
+    if (this.mouseLayer) {
+      this.events.subscribe("mouseDown" + this.mouseLayer, (e) => {
+        this.onMouseDown(e);
+      });
+      this.events.subscribe("mouseUp" + this.mouseLayer, (e) => {
+        this.onMouseUp(e);
+      });
+      this.events.subscribe("mouseMove" + this.mouseLayer, (e) => {
+        this.onMouseMove(e);
+      });
+    }
+  }
+
+  onMouseDown(e) {
+  }
+
+  onMouseUp(e) {
+  }
+
+  onMouseMove(e) {
   }
 
   applyTransforms() {
@@ -76,22 +85,6 @@ export class BaseCanvasComponent implements AfterViewInit {
     p.x += this.maps.current.state.viewport.center.x;
     p.y += this.maps.current.state.viewport.center.y;
     return p;
-  }
-
-  throttleMouseMove(e) {
-    let time = new Date().getTime();
-    if ((time - this.previousCall) < 10) { return; }
-    this.previousCall = time;
-    this.onMouseMove(e);
-  }
-
-  onMouseDown(e) {
-  }
-
-  onMouseUp(e) {
-  }
-
-  onMouseMove(e) {
   }
 
   connect() {

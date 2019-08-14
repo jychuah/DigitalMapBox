@@ -22,6 +22,7 @@ export class DrawingCanvasComponent extends BaseCanvasComponent implements After
               public events: Events,
               public maps: MapSocketService) {
     super(platform, events, maps);
+    this.mouseLayer = "drawing";
   }
 
   connect() {
@@ -46,42 +47,30 @@ export class DrawingCanvasComponent extends BaseCanvasComponent implements After
     this.maps.current.state.vectors.push(vector);
   }
 
-  onMouseDown(e) {
+  onMouseDown(p) {
     this.drawing = true;
-    this.current = this.getLocalPoint(
-      {
-        x: e.clientX||e.touches[0].clientX,
-        y: e.clientY||e.touches[0].clientY
-      }
-    );
+    this.current = p;
   }
 
-  eventToLocalPoint(e) : Point {
-    return this.getLocalPoint({
-      x: e.clientX||e.touches[0].clientX, 
-      y: e.clientY||e.touches[0].clientY
-    });
-  }
-
-  eventToVector(e) : Vector {
+  generateVector(p) : Vector {
     let vector = {
       p0: this.current,
-      p1: this.eventToLocalPoint(e),
+      p1: p,
       width: 2 / this.maps.current.state.viewport.scale
     } 
     return vector;
   }
 
-  onMouseUp(e) {
+  onMouseUp(p) {
     if (!this.drawing) { return; }
     this.drawing = false;
-    this.drawLine(this.eventToVector(e), true);
+    this.drawLine(this.generateVector(p), true);
   }
 
-  onMouseMove(e) {
+  onMouseMove(p) {
     if (!this.drawing) { return; }
-    this.drawLine(this.eventToVector(e), true);
-    this.current = this.eventToLocalPoint(e);
+    this.drawLine(this.generateVector(p), true);
+    this.current = p;
   }
 
 

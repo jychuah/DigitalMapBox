@@ -9,6 +9,8 @@ import { ServerState, State, View } from './types';
 export class MapSocketService {
   socket: any = null;
   url: string = "http://localhost:3000";
+
+  public mouseLayer: string = null;
   public ui: boolean = false;
 
   public server: ServerState = {

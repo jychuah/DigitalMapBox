@@ -31,6 +31,7 @@ export class MiniMapCanvasComponent extends BaseCanvasComponent implements After
   minv: number = Math.log(0.1);
   maxv: number = Math.log(5);
   sliderScale: number = (this.maxv - this.minv) / (this.maxp - this.minp);
+  previousCall: number = null;
 
   constructor(public platform: Platform, 
               public events: Events, 
@@ -60,6 +61,24 @@ export class MiniMapCanvasComponent extends BaseCanvasComponent implements After
 
   ngAfterViewInit() {
     super.ngAfterViewInit();
+    this.canvas.addEventListener('mousedown', (e) => this.onMouseDown(e), false);
+    this.canvas.addEventListener('mouseup', (e) => this.onMouseUp(e), false);
+    this.canvas.addEventListener('mouseout', (e) => this.onMouseUp(e), false);
+    this.canvas.addEventListener('mousemove', (e) => this.throttleMouseMove(e), false);
+    
+    //Touch support for mobile devices
+    this.canvas.addEventListener('touchstart', (e) => this.onMouseDown(e), false);
+    this.canvas.addEventListener('touchend', (e) => this.onMouseUp(e), false);
+    this.canvas.addEventListener('touchcancel', (e) => this.onMouseUp(e), false);
+    this.canvas.addEventListener('touchmove', (e) => this.throttleMouseMove(e), false);
+    this.previousCall = new Date().getTime();
+  }
+
+  throttleMouseMove(e) {
+    let time = new Date().getTime();
+    if ((time - this.previousCall) < 10) { return; }
+    this.previousCall = time;
+    this.onMouseMove(e);
   }
 
   calculateMetrics() {

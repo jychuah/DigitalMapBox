@@ -9,6 +9,7 @@ import { MiniMapCanvasComponent} from './mini-map-canvas/mini-map-canvas.compone
 import { ColorSelectComponent } from './color-select/color-select.component';
 import { FormsModule } from '@angular/forms';
 import { FogCanvasComponent } from './fog-canvas/fog-canvas.component';
+import { MouseInteractionComponent } from './mouse-interaction/mouse-interaction.component';
 
 @NgModule({
   entryComponents: [
@@ -25,7 +26,8 @@ import { FogCanvasComponent } from './fog-canvas/fog-canvas.component';
     MapCanvasComponent,
     MiniMapCanvasComponent,
     ColorSelectComponent,
-    FogCanvasComponent
+    FogCanvasComponent,
+    MouseInteractionComponent
   ],
   exports: [
     DrawingCanvasComponent,
@@ -34,7 +36,8 @@ import { FogCanvasComponent } from './fog-canvas/fog-canvas.component';
     MapCanvasComponent,
     MiniMapCanvasComponent,
     ColorSelectComponent,
-    FogCanvasComponent
+    FogCanvasComponent,
+    MouseInteractionComponent
   ]
 })
 export class CanvasModule {}

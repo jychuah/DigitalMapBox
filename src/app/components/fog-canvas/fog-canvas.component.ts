@@ -22,12 +22,9 @@ export class FogCanvasComponent extends BaseCanvasComponent {
   }
 
   redraw() {
-
-
     super.redraw();
     if (!this.maps.imageLoaded() || !this.maps.image.complete ) { return; }
     if (!this.maps.ui) {
-      console.log("Drawing blurred");
       this.context.filter = 'blur(30px)';
       this.context.drawImage(this.maps.image, 0, 0);
     } else {
