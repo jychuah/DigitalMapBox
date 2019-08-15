@@ -23,6 +23,7 @@
         [color]="view.color"
         (select)="selectColor($event, viewIndex)"></color-select>
       <ion-label>{{ view.name }}</ion-label>
+      <ion-icon name="trash" (click)="presentDeleteView(view.name, viewIndex)"></ion-icon>
       <ion-icon name="settings" (click)="changeViewName(view.name, viewIndex)"></ion-icon>
       <ion-icon name="radio-button-on" *ngIf="maps.current == view" color="dark"></ion-icon>
       <ion-icon *ngIf="maps.current != view" name="radio-button-off"

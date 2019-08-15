@@ -23,6 +23,28 @@ export class ViewsModalPage implements OnInit {
     this.events.publish("redraw");
   }
 
+  async presentDeleteView(viewname: string, viewIndex: number) {
+    const alert = await this.alerts.create(
+      {
+        header: "Delete view " + viewname + "?",
+        buttons: [
+          {
+            text: "Cancel",
+            role: "cancel",
+            cssClass: "secondary"
+          },
+          {
+            text: "Delete",
+            handler: () => {
+              this.maps.deleteView(viewIndex);
+            }
+          }
+        ]
+      }
+    )
+    await alert.present();
+  }
+
   async presentAlertViewName(callback, viewname: string = "") {
     const alert = await this.alerts.create(
       {

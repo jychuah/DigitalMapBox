@@ -80,6 +80,9 @@ export class MapSocketService {
         view.color = data.data.color;
         this.events.publish("redraw");
       }
+      if (data.event == "deleteview") {
+        this.viewDeleted(data.data);
+      }
       if (data.event == "reveal") {
         this.current.state.regions = data.data;
       }
@@ -123,6 +126,19 @@ export class MapSocketService {
       name: view.name,
       color: view.color
     });
+  }
+
+  viewDeleted(viewIndex: number) {
+    if (this.server.currentView == viewIndex) {
+      this.server.currentView -= 1;
+      this.changeCurrentView(this.server.currentView);
+    }
+    this.server.views.splice(viewIndex, 1);
+  }
+
+  deleteView(viewIndex: number) {
+    this.viewDeleted(viewIndex);
+    this.emit("deleteview", viewIndex);
   }
 
   toggleUI() {

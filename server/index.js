@@ -237,6 +237,12 @@ function setViewHandler(socket, viewIndex) {
   broadcast(socket, "setview", viewIndex);
 }
 
+function deleteViewHandler(socket, viewIndex) {
+  server.views.splice(viewIndex, 1);
+  console.log("Deleting view", viewIndex);
+  broadcast(socket, "deleteview", viewIndex);
+}
+
 function onConnection(socket){
   socket.on('drawing', (vector) => drawingHandler(socket, vector));
   socket.on('filelist', (path) => fileListHandler(socket, path));
@@ -249,6 +255,7 @@ function onConnection(socket){
   socket.on('updateview', (viewData) => updateViewHandler(socket, viewData))
   socket.on('erasing', (vector) => erasingHandler(socket, vector));
   socket.on('reveal', (regions) => revealHandler(socket, regions));
+  socket.on('deleteview', (viewIndex) => deleteViewHandler(socket, viewIndex));
   syncHandler(socket);
 }
 
