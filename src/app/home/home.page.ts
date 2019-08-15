@@ -12,7 +12,7 @@ import { ToastController, Events } from '@ionic/angular';
 export class HomePage implements AfterViewInit {
   public saving: boolean = false;
 
-  constructor(private maps: MapSocketService, private platform: Platform,
+  constructor(public maps: MapSocketService, private platform: Platform,
               private modalController: ModalController, private events: Events,
               private toast: ToastController) {
   }
