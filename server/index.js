@@ -32,6 +32,8 @@ var server = {
   path: ""
 } 
 
+const blankState = JSON.parse(JSON.stringify(server));
+
 function getCurrentView() {
   if (server.currentView == -1) {
     return server.global;
@@ -119,9 +121,10 @@ function fileListHandler(socket, path) {
 }
 
 function imageLoadHandler(socket, path) {
-  server.path = path;
+  server = JSON.parse(JSON.stringify(blankState));
   console.log("Image Load", path);
   loadMetadata(path);
+  server.path = path
   saveServerState();
   broadcast(socket, 'sync', server);
   syncHandler(socket);
@@ -133,6 +136,57 @@ function drawingHandler(socket, vector) {
   view.state.vectors.push(vector);
   saveServerState();
   broadcast(socket, "drawing", vector);
+}
+
+function pointDistance(p, v) {
+  var A = p.x - v.p0.x;
+  var B = p.y - v.p0.y;
+  var C = v.p1.x - v.p0.x;
+  var D = v.p1.y - v.p0.y;
+
+  var dot = A * C + B * D;
+  var len_sq = C * C + D * D;
+  var param = -1;
+  if (len_sq != 0) //in case of 0 length line
+      param = dot / len_sq;
+
+  var xx, yy;
+
+  if (param < 0) {
+    xx = v.p0.x;
+    yy = v.p0.y;
+  }
+  else if (param > 1) {
+    xx = v.p1.x;
+    yy = v.p1.y;
+  }
+  else {
+    xx = v.p0.x + param * C;
+    yy = v.p0.y + param * D;
+  }
+
+  var dx = p.x - xx;
+  var dy = p.y - yy;
+  return Math.sqrt(dx * dx + dy * dy);
+}
+
+function vectorDistance(v1, v2) {
+  return Math.min(pointDistance(v1.p0, v2), pointDistance(v1.p1, v2));
+}
+
+function erase(v) {
+  let view = getCurrentView();
+  view.state.vectors = view.state.vectors.filter(
+    (vector) => {
+      return vectorDistance(v, vector) > 10 / view.state.viewport.scale;
+    }
+  )
+}
+
+function erasingHandler(socket, vector) {
+  console.log("Erasing near vector", vector);
+  broadcast(socket, "erasing", vector);
+  erase(vector);
 }
 
 function syncHandler(socket) {
@@ -187,6 +241,7 @@ function onConnection(socket){
   socket.on('newview', (view) => newViewHandler(socket, view));
   socket.on('setview', (viewIndex) => setViewHandler(socket, viewIndex));
   socket.on('updateview', (viewData) => updateViewHandler(socket, viewData))
+  socket.on('erasing', (vector) => erasingHandler(socket, vector));
   syncHandler(socket);
 }
 

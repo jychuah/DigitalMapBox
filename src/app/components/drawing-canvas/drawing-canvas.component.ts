@@ -35,6 +35,9 @@ export class DrawingCanvasComponent extends BaseCanvasComponent implements After
     this.events.subscribe("drawing", (data) => {
       this.onDrawingEvent(data);
     });
+    this.events.subscribe("erasing", (data) => {
+      this.onErasingEvent(data);
+    });
   }
 
   drawLine(vector: Vector, emit: boolean = false){
@@ -42,7 +45,7 @@ export class DrawingCanvasComponent extends BaseCanvasComponent implements After
     this.context.moveTo(vector.p0.x, vector.p0.y);
     this.context.lineTo(vector.p1.x, vector.p1.y);
     this.context.strokeStyle = this.maps.current.color;
-    this.context.lineWidth = vector.width;
+    this.context.lineWidth = vector.w;
     this.context.stroke();
     this.context.closePath();
 
@@ -67,9 +70,13 @@ export class DrawingCanvasComponent extends BaseCanvasComponent implements After
     let vector = {
       p0: this.current,
       p1: p,
-      width: 2 / this.maps.current.state.viewport.scale
+      w: 2 / this.maps.current.state.viewport.scale
     } 
     return vector;
+  }
+
+  vectorDistance(v1: Vector, v2: Vector) {
+    return Math.min(this.pointDistance(v1.p0, v2), this.pointDistance(v1.p1, v2));
   }
 
   pointDistance(p: Point, v: Vector) {
@@ -117,21 +124,31 @@ export class DrawingCanvasComponent extends BaseCanvasComponent implements After
       this.drawLine(this.generateVector(p), true);
     }
     if (this.erasing) {
-      let remaining = this.maps.current.state.vectors.filter(
-        (vector) => {
-          return this.pointDistance(p, vector) > 20 
-              / this.maps.current.state.viewport.scale;
-        }
-      );
-      this.maps.current.state.vectors = remaining;
-      this.redraw();
+      this.erase(this.generateVector(p), true);
     }
     this.current = p;
   }
 
+  erase(v: Vector, emit: boolean = false) {
+    this.maps.current.state.vectors = this.maps.current.state.vectors.filter(
+      (vector) => {
+        return this.vectorDistance(v, vector) > 10 / this.maps.current.state.viewport.scale;
+      }
+    )
+    this.redraw();
 
-  onDrawingEvent(data){
+    if (!emit) { return; }
+
+    this.maps.emit('erasing', v);
+  }
+
+
+  onDrawingEvent(data) {
     this.drawLine(data);
+  }
+
+  onErasingEvent(data) {
+    this.erase(data);
   }
 
   redraw() {
