@@ -11,26 +11,31 @@
     <ion-icon name="logo-buffer"></ion-icon>
   </ion-fab-button>
 </ion-fab>
+<ion-fab class="ui-open" vertical="top" horizontal="start" slot="fixed" *ngIf="maps.ui">
+  <ion-fab-button color="danger" (click)="presentShutdownAlert()">
+    <ion-icon name="power"></ion-icon>
+  </ion-fab-button>
+  <ion-fab-button color="danger" (click)="presentFanAlert()">
+    <ion-icon name="snow"></ion-icon>
+  </ion-fab-button>
+</ion-fab>
 <ion-fab class="ui-open" vertical="bottom" horizontal="start" slot="fixed" *ngIf="maps.ui">
   <ion-fab-button
     class="layer-select"
     attr.color="{{ layerStyle('draw') }}"
-    (click)="setMouseEvents('draw')"
-    data.desc="Draw">
+    (click)="setMouseEvents('draw')">
     <ion-icon name="create"></ion-icon>
   </ion-fab-button>
   <ion-fab-button
     class="layer-select"
     attr.color="{{ layerStyle('erase') }}"
-    (click)="setMouseEvents('erase')"
-    data.desc="Erase">
+    (click)="setMouseEvents('erase')">
     <ion-icon name="radio-button-on"></ion-icon>
   </ion-fab-button>
   <ion-fab-button
     class="layer-select"
     attr.color="{{ layerStyle('reveal') }}"
-    (click)="setMouseEvents('reveal')"
-    data.desc="Reveal">
+    (click)="setMouseEvents('reveal')">
     <ion-icon name="eye"></ion-icon>
   </ion-fab-button>
 </ion-fab>

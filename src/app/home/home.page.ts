@@ -3,7 +3,7 @@ import { MapSocketService } from '../map-socket.service';
 import { Platform, ModalController } from '@ionic/angular';
 import { FileModalPage } from '../file-modal/file-modal.page';
 import { ViewsModalPage } from '../views-modal/views-modal.page';
-import { ToastController, Events } from '@ionic/angular';
+import { ToastController, Events, AlertController } from '@ionic/angular';
 @Component({
   selector: 'app-home',
   templateUrl: 'home.page.html',
@@ -14,7 +14,7 @@ export class HomePage implements AfterViewInit {
 
   constructor(public maps: MapSocketService, private platform: Platform,
               private modalController: ModalController, private events: Events,
-              private toast: ToastController) {
+              private toast: ToastController, private alerts: AlertController) {
   }
 
   ngAfterViewInit() {
@@ -23,6 +23,18 @@ export class HomePage implements AfterViewInit {
       this.saving = false;
       this.toastSaved();
     });
+    this.events.subscribe("shutdown", () => {
+      this.toastShutdown();
+    });
+  }
+
+  async toastShutdown() {
+    const toast = await this.toast.create({
+      message: 'Shutting Down',
+      duration: 10000,
+      position: "middle"
+    });
+    toast.present(); 
   }
 
   async toastSaved() {
@@ -85,5 +97,53 @@ export class HomePage implements AfterViewInit {
 
   setMouseEvents(mouseEvent: string) {
     this.maps.mouseEvent = mouseEvent;
+  }
+
+  async presentShutdownAlert() {
+    const alert = await this.alerts.create(
+      {
+        header: "Shut down Digital Map Box?",
+        buttons: [
+          {
+            text: "Cancel",
+            role: "cancel",
+            cssClass: "secondary",
+          },
+          {
+            text: "Shut down",
+            handler: () => {
+              this.maps.emit("shutdown");
+            }
+          }
+        ]
+      }
+    )
+    await alert.present();
+  }
+
+  async presentFanAlert() {
+    const alert = await this.alerts.create(
+      {
+        header: "Fan Control",
+        buttons: [
+          {
+            text: "On",
+            role: "cancel",
+            cssClass: "primary",
+            handler: () => {
+              this.maps.emit("fan", 1);
+            }
+          },
+          {
+            text: "Off",
+            cssClass: "secondary",
+            handler: () => {
+              this.maps.emit("fan", 0);
+            }
+          }
+        ]
+      }
+    )
+    await alert.present();
   }
 }

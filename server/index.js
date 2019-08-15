@@ -1,12 +1,15 @@
 
+const compression = require('compression');
 const express = require('express');
 const app = express();
+app.use(compression())
 const http = require('http').Server(app);
 const io = require('socket.io')(http);
 const port = process.env.PORT || 3000;
 const fs = require('fs');
 const os = require('os');
 const ip = require('ip');
+const { exec } = require('child_process');
 
 const extensions = [ 'png', 'jpg', '.jpeg' ];
 
@@ -243,6 +246,31 @@ function deleteViewHandler(socket, viewIndex) {
   broadcast(socket, "deleteview", viewIndex);
 }
 
+function fanHandler(socket, pValue) {
+  exec('sudo hub-ctrl -h 0 -P 2 -p ' + pValue, (err, stdout, stderr) => {
+    if (err) {
+      // node couldn't execute the command
+      console.log("Couldn't execute command");
+      return;
+    }
+    console.log(`stdout: ${stdout}`);
+    console.log(`stderr: ${stderr}`);
+  });
+}
+
+function shutdownHandler(socket) {
+  exec('sudo shutdown -h now', (err, stdout, stderr) => {
+    if (err) {
+      // node couldn't execute the command
+      console.log("Couldn't execute command");
+      return;
+    }
+    console.log(`stdout: ${stdout}`);
+    console.log(`stderr: ${stderr}`);
+  }); 
+  broadcast(socket, "shutdown");
+}
+
 function onConnection(socket){
   socket.on('drawing', (vector) => drawingHandler(socket, vector));
   socket.on('filelist', (path) => fileListHandler(socket, path));
@@ -256,6 +284,8 @@ function onConnection(socket){
   socket.on('erasing', (vector) => erasingHandler(socket, vector));
   socket.on('reveal', (regions) => revealHandler(socket, regions));
   socket.on('deleteview', (viewIndex) => deleteViewHandler(socket, viewIndex));
+  socket.on('fan', (pValue) => fanHandler(socket, pValue));
+  socket.on('shutdown', () => shutdownHandler(socket));
   syncHandler(socket);
 }
 
