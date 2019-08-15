@@ -4,6 +4,12 @@ export interface Point {
   y: number
 }
 
+export interface Region {
+  p: Point,
+  w: number,
+  h: number
+}
+
 export interface ViewPort {
   center: Point,
   scale: number
@@ -21,6 +27,7 @@ export interface State {
     center: Point,
     scale: number
   },
+  regions: Region [ ]
 }
 
 export interface View {

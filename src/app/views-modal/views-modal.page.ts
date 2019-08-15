@@ -71,7 +71,8 @@ export class ViewsModalPage implements OnInit {
           color: "#ffffff",
           state: {
             viewport: JSON.parse(JSON.stringify(this.maps.current.state.viewport)),
-            vectors: [ ]
+            vectors: [ ],
+            regions: [ ]
           }
         }
         this.maps.newView(newView);

@@ -28,7 +28,8 @@ export class MapSocketService {
             y: 0
           },
           scale: 1.0
-        }
+        },
+        regions: [ ]
       }
     },
     views: [ ],
@@ -78,6 +79,9 @@ export class MapSocketService {
         view.name = data.data.name;
         view.color = data.data.color;
         this.events.publish("redraw");
+      }
+      if (data.event == "reveal") {
+        this.current.state.regions = data.data;
       }
       this.events.publish(data.event, data.data);
     });

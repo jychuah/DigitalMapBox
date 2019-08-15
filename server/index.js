@@ -22,7 +22,8 @@ var server = {
           y: 0
         },
         scale: 1.0
-      }
+      },
+      regions: [ ]
     }
   },
   views: [ ],
@@ -130,11 +131,16 @@ function imageLoadHandler(socket, path) {
   syncHandler(socket);
 }
 
+function revealHandler(socket, regions) {
+  let view = getCurrentView();
+  view.state.regions = regions;
+  console.log("Revealing ", regions.length, "regions", regions);
+  broadcast(socket, "reveal", regions);
+}
 
 function drawingHandler(socket, vector) {
   let view = getCurrentView();
   view.state.vectors.push(vector);
-  saveServerState();
   broadcast(socket, "drawing", vector);
 }
 
@@ -242,6 +248,7 @@ function onConnection(socket){
   socket.on('setview', (viewIndex) => setViewHandler(socket, viewIndex));
   socket.on('updateview', (viewData) => updateViewHandler(socket, viewData))
   socket.on('erasing', (vector) => erasingHandler(socket, vector));
+  socket.on('reveal', (regions) => revealHandler(socket, regions));
   syncHandler(socket);
 }
 

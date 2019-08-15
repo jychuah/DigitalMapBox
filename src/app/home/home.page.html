@@ -1,5 +1,6 @@
 <drawing-canvas></drawing-canvas>
 <map-canvas></map-canvas>
+<fog-canvas></fog-canvas>
 <mouse-interaction></mouse-interaction>
 <mini-map-canvas *ngIf="maps.ui"></mini-map-canvas>
 <ion-fab vertical="bottom" horizontal="end" slot="fixed" *ngIf="!maps.ui">
@@ -24,6 +25,13 @@
     (click)="setMouseEvents('erase')"
     data.desc="Erase">
     <ion-icon name="radio-button-on"></ion-icon>
+  </ion-fab-button>
+  <ion-fab-button
+    class="layer-select"
+    attr.color="{{ layerStyle('reveal') }}"
+    (click)="setMouseEvents('reveal')"
+    data.desc="Reveal">
+    <ion-icon name="eye"></ion-icon>
   </ion-fab-button>
 </ion-fab>
 <ion-fab class="ui-open" vertical="bottom" horizontal="end" slot="fixed" *ngIf="maps.ui">
