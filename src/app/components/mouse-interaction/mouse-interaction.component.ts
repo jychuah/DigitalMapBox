@@ -35,16 +35,18 @@ export class MouseInteractionComponent implements AfterViewInit {
   }
 
   getLocalPoint(e) : Point {
-    
     let p = {
       x: e.clientX, 
       y: e.clientY
     }
     if (!p.x) {
-      p.x = e.touches[0].clientX;
-    }
-    if (!p.y) {
-      p.y = e.touches[0].clientY;
+      if (e.touches[0]) {
+        p.x = e.touches[0].clientX;
+        p.y = e.touches[0].clientY;
+      } else if (e.changedTouches[0]) {
+        p.x = e.changedTouches[0].clientX;
+        p.y = e.changedTouches[0].clientY;
+      }
     }
     p.x -= this.platform.width() / 2;
     p.y -= this.platform.height() / 2;
