@@ -300,6 +300,12 @@ function shutdownHandler(socket) {
   broadcast(socket, "shutdown");
 }
 
+function localViewportHandler(socket, metrics) {
+  console.log("Received local viewport metrics", metrics);
+  broadcast(socket, "localviewport", metrics);
+  emit(socket, "localviewport", metrics);
+}
+
 function onConnection(socket){
   socket.on('drawing', (vector) => drawingHandler(socket, vector));
   socket.on('filelist', (path) => fileListHandler(socket, path));
@@ -313,6 +319,7 @@ function onConnection(socket){
   socket.on('erasing', (vector) => erasingHandler(socket, vector));
   socket.on('reveal', (regions) => revealHandler(socket, regions));
   socket.on('deleteview', (viewIndex) => deleteViewHandler(socket, viewIndex));
+  socket.on('localviewport', (metrics) => localViewportHandler(socket, metrics));
   socket.on('fan', (pValue) => fanHandler(socket, pValue));
   socket.on('shutdown', () => shutdownHandler(socket));
   syncHandler(socket);

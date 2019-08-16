@@ -1,6 +1,6 @@
-import { Injectable } from '@angular/core';
+import { Injectable, NgZone } from '@angular/core';
 import * as io from 'socket.io-client';
-import { Events } from '@ionic/angular';
+import { Events, Platform } from '@ionic/angular';
 import { ServerState, State, View } from './types';
 
 @Injectable({
@@ -37,8 +37,13 @@ export class MapSocketService {
   }
   public image: any = new Image();
   public current: View = this.server.global;
+  public isLocal: boolean = false;
+  private ipRegex = new RegExp(/([0-9]{1,3}(\.[0-9]{1,3}){3}|[a-f0-9]{1,4}(:[a-f0-9]{1,4}){7})/);
+  public localViewportMetrics: any = null;
 
-  constructor(public events: Events) { 
+  previousCall: number = null;
+
+  constructor(public events: Events, public zone: NgZone, public platform: Platform) { 
     this.url = window.location.origin.slice(0, -(window.location.port.length + 1)) + ":3000";
     this.connect();
     this.image.onload = () => {
@@ -46,10 +51,71 @@ export class MapSocketService {
       this.events.publish("imageloadcomplete");
       this.events.publish("redraw")
     }
+    this.determineLocalIp();
+    this.previousCall = new Date().getTime();
   }
 
   imageLoaded() : boolean {
     return this.server.path && this.server.path.length > 0;
+  }
+
+  determineLocalIp() {
+    window['RTCPeerConnection'] = this.getRTCPeerConnection();
+
+    const pc = new RTCPeerConnection({ iceServers: [] });
+    pc.createDataChannel('');
+    pc.createOffer().then(pc.setLocalDescription.bind(pc));
+
+    pc.onicecandidate = (ice) => {
+      this.zone.run(() => {
+        if (!ice || !ice.candidate || !ice.candidate.candidate) {
+          return;
+        }
+        let localIp = this.ipRegex.exec(ice.candidate.candidate)[1];
+        if (localIp === this.server.ip) {
+          this.isLocal = true;
+          console.log("This client is local to the server");
+          this.platform.ready().then(
+            () => {
+              this.onResize();
+              this.platform.resize.subscribe(() => {
+                this.onResize();
+              });
+            }
+          );
+        }
+        pc.onicecandidate = () => {};
+        pc.close();
+      });
+    };
+  }
+
+  onResize() {
+    let time = new Date().getTime();
+    if ((time - this.previousCall) < 10) { return; }
+    this.previousCall = time;
+    if (this.isLocal) {
+      this.emit(
+        'localviewport', 
+        {
+          width: this.platform.width(), 
+          height: this.platform.height() 
+        }
+      );
+    }
+  }
+
+  private getRTCPeerConnection() {
+    if ("RTCPeerConnection" in window) {
+      return window["RTCPeerConnection"];
+    }
+    if ("mozRTCPeerConnection" in window) {
+      return window["mozRTCPeerConnection"];
+    }
+    if ("webkitRTCPeerConnection" in window) {
+      return window["webkitRTCPeerConnection"];
+    }
+    return null;
   }
 
   connect() {
@@ -61,6 +127,11 @@ export class MapSocketService {
         this.image.src = this.url + this.server.path;
         this.setCurrentView(this.server.currentView);
         console.log("Loading", this.image.src);
+        this.determineLocalIp();
+      }
+      if (data.event == "localviewport") {
+        this.localViewportMetrics = data.data;
+        this.events.publish("redraw");
       }
       if (data.event == "viewport") {
         this.current.state.viewport = data.data;

@@ -3,6 +3,7 @@ import { BaseCanvasComponent } from '../base-canvas/base-canvas.component';
 import { Events, Platform } from '@ionic/angular';
 import { MapSocketService } from '../../map-socket.service';
 import { ViewPort, Point } from '../../types';
+import { THIS_EXPR } from '@angular/compiler/src/output/output_ast';
 
 @Component({
   selector: 'mini-map-canvas',
@@ -32,6 +33,7 @@ export class MiniMapCanvasComponent extends BaseCanvasComponent implements After
   maxv: number = Math.log(5);
   sliderScale: number = (this.maxv - this.minv) / (this.maxp - this.minp);
   previousCall: number = null;
+  localViewportMetrics: any = null;
 
   constructor(public platform: Platform, 
               public events: Events, 
@@ -173,6 +175,24 @@ export class MiniMapCanvasComponent extends BaseCanvasComponent implements After
     return localRect;
   }
 
+  drawLocalViewport() {
+    if (!this.maps.localViewportMetrics) { return; }
+    let viewport = this.maps.current.state.viewport;
+    let localRect = { 
+      x: 0,
+      y: 0,
+      width: 0,
+      height: 0
+    };
+    localRect.x = (-this.maps.localViewportMetrics.width / 2 / viewport.scale + viewport.center.x) * this.scale + this.dx;
+    localRect.y = (-this.maps.localViewportMetrics.height / 2 / viewport.scale + viewport.center.y) * this.scale + this.dy;
+    localRect.width = this.maps.localViewportMetrics.width * this.scale / viewport.scale;
+    localRect.height = this.maps.localViewportMetrics.height * this.scale / viewport.scale; 
+    this.context.fillStyle = "#00000088";
+    this.context.setTransform(1, 0, 0, 1, 0, 0);
+    this.context.fillRect(localRect.x, localRect.y, localRect.width, localRect.height);
+  }
+
   drawViewPort(viewport: ViewPort, color: string) {
     let rect = this.calculateLocalRect(viewport);
     this.context.strokeStyle = color;
@@ -191,6 +211,7 @@ export class MiniMapCanvasComponent extends BaseCanvasComponent implements After
     }
     this.context.setTransform(this.scale, 0, 0, this.scale, this.dx, this.dy);
     this.context.drawImage(this.maps.image, 0, 0);
+    this.drawLocalViewport();
     if (this.dragging) {
       this.drawViewPort(this.localView, this.maps.current.color);
       return;
@@ -212,5 +233,4 @@ export class MiniMapCanvasComponent extends BaseCanvasComponent implements After
     this.calculateMetrics();
     this.redraw();
   }
-
 }

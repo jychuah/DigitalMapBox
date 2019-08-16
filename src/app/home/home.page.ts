@@ -96,7 +96,11 @@ export class HomePage implements AfterViewInit {
   }
 
   setMouseEvents(mouseEvent: string) {
-    this.maps.mouseEvent = mouseEvent;
+    if (this.maps.mouseEvent === mouseEvent) {
+      this.maps.mouseEvent = null;
+    } else {
+      this.maps.mouseEvent = mouseEvent;
+    }
   }
 
   async presentShutdownAlert() {
