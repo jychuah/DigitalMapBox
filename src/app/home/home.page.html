@@ -38,6 +38,15 @@
     (click)="setMouseEvents('reveal')">
     <ion-icon name="eye"></ion-icon>
   </ion-fab-button>
+  <ion-item>
+    <ion-textarea 
+      placeholder="Notes" 
+      rows="6" 
+      cols="40" 
+      debounce="500"
+      [(ngModel)]="maps.current.notes"
+      (ionChange)="notesChange($event)"></ion-textarea>
+  </ion-item>
 </ion-fab>
 <ion-fab class="ui-open" vertical="bottom" horizontal="end" slot="fixed" *ngIf="maps.ui">
   <ion-fab-button

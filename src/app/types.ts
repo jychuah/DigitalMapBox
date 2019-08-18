@@ -33,7 +33,8 @@ export interface State {
 export interface View {
   name: string,
   state: State,
-  color: string
+  color: string,
+  notes?: string
 }
 
 export interface ServerState {

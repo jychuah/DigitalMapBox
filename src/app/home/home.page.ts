@@ -28,6 +28,10 @@ export class HomePage implements AfterViewInit {
     });
   }
 
+  notesChange($event) {
+    this.maps.updateView(this.maps.server.currentView);
+  }
+
   async toastShutdown() {
     const toast = await this.toast.create({
       message: 'Shutting Down',

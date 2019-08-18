@@ -149,6 +149,7 @@ export class MapSocketService {
         let view = this.getView(data.data.index);
         view.name = data.data.name;
         view.color = data.data.color;
+        view.notes = data.data.notes;
         this.events.publish("redraw");
       }
       if (data.event == "deleteview") {
@@ -195,7 +196,8 @@ export class MapSocketService {
     this.emit("updateview", {
       index: viewIndex,
       name: view.name,
-      color: view.color
+      color: view.color,
+      notes: view.notes
     });
   }
 

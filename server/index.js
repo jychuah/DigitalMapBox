@@ -256,7 +256,12 @@ function newViewHandler(socket, view) {
 }
 
 function updateViewHandler(socket, viewdata) {
-  let view = server.views[viewdata.index];
+  let view;
+  if (viewdata.index == -1) {
+    view = server.global;
+  } else {
+    view = server.views[viewdata.index];
+  }
   view.name = viewdata.name;
   view.color = viewdata.color;
   console.log("Updating view metadata", viewdata);
