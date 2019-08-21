@@ -5,13 +5,19 @@ import { Platform, ModalController } from '@ionic/angular';
 import { FileModalPage } from '../file-modal/file-modal.page';
 import { ViewsModalPage } from '../views-modal/views-modal.page';
 import { ToastController, Events, AlertController } from '@ionic/angular';
+import { faEraser } from '@fortawesome/free-solid-svg-icons';
 @Component({
   selector: 'app-home',
   templateUrl: 'home.page.html',
   styleUrls: ['home.page.scss'],
 })
 export class HomePage implements AfterViewInit {
+  public faEraser: any = faEraser;
   public saving: boolean = false;
+  public gmlayer: boolean = false;
+  public erasing: boolean = false;
+  public drawing: boolean = false;
+  public revealing: boolean = false;
 
   constructor(public maps: MapSocketService, private platform: Platform,
               private modalController: ModalController, private events: Events,
@@ -108,11 +114,50 @@ export class HomePage implements AfterViewInit {
     return "light"
   }
 
-  setMouseEvents(mouseEvent: string) {
-    if (this.maps.mouseEvent === mouseEvent) {
-      this.maps.mouseEvent = null;
+  isDrawing() : boolean {
+    return this.maps.mouseEvent === "draw" || this.maps.mouseEvent === "gmdraw";
+  }
+
+  isErasing() : boolean {
+    return this.maps.mouseEvent === "erase" || this.maps.mouseEvent === "gmerase"; 
+  }
+
+  gmlayerToggle() {
+    this.setDrawingEvents();
+  }
+
+  drawClick() {
+    this.erasing = false;
+    this.drawing = !this.drawing;
+    this.revealing = false;
+    this.setDrawingEvents();
+  }
+
+  eraseClick() {
+    this.erasing = !this.erasing;
+    this.drawing = false;
+    this.revealing = false;
+    this.setDrawingEvents();
+  }
+
+  setDrawingEvents() {
+    this.maps.mouseEvent = null;
+    if (this.erasing) {
+      this.maps.mouseEvent = (this.gmlayer ? 'gm' : '') + 'erase';
+    }
+    if (this.drawing) {
+      this.maps.mouseEvent = (this.gmlayer ? 'gm' : '') + 'draw';
+    }
+  }
+
+  setRevealing() {
+    this.erasing = false;
+    this.drawing = false;
+    this.revealing = !this.revealing;
+    if (this.revealing) {
+      this.maps.mouseEvent = 'reveal';
     } else {
-      this.maps.mouseEvent = mouseEvent;
+      this.maps.mouseEvent = null;
     }
   }
 

@@ -6,12 +6,14 @@ import { RouterModule } from '@angular/router';
 
 import { HomePage } from './home.page';
 import { CanvasModule } from '../components/canvas.module';
+import { FontAwesomeModule } from '@fortawesome/angular-fontawesome';
 
 @NgModule({
   imports: [
     CanvasModule,
     CommonModule,
     FormsModule,
+    FontAwesomeModule,
     IonicModule,
     RouterModule.forChild([
       {
