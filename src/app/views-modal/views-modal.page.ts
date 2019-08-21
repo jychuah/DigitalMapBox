@@ -23,6 +23,29 @@ export class ViewsModalPage implements OnInit {
     this.events.publish("redraw");
   }
 
+
+  async presentResetGlobal() {
+    const alert = await this.alerts.create(
+      {
+        header: "Reset global view?",
+        buttons: [
+          {
+            text: "Cancel",
+            role: "cancel",
+            cssClass: "secondary"
+          },
+          {
+            text: "Reset",
+            handler: () => {
+              this.maps.resetGlobalView();
+            }
+          }
+        ]
+      }
+    )
+    await alert.present();
+  }
+
   async presentDeleteView(viewname: string, viewIndex: number) {
     const alert = await this.alerts.create(
       {

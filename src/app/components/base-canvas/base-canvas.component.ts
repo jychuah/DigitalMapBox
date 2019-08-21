@@ -18,6 +18,10 @@ export class BaseCanvasComponent implements AfterViewInit {
               public maps: MapSocketService) { }
 
   ngAfterViewInit() {
+    this.initCanvas();
+  }
+
+  initCanvas() {
     this.canvas = this.canvasEl.nativeElement;
     this.context = this.canvas.getContext('2d');
     this.platform.ready().then(

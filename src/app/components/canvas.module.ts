@@ -10,6 +10,7 @@ import { ColorSelectComponent } from './color-select/color-select.component';
 import { FormsModule } from '@angular/forms';
 import { FogCanvasComponent } from './fog-canvas/fog-canvas.component';
 import { MouseInteractionComponent } from './mouse-interaction/mouse-interaction.component';
+import { GmNoteCanvasComponent } from './gm-note-canvas/gm-note-canvas.component';
 
 @NgModule({
   entryComponents: [
@@ -27,7 +28,8 @@ import { MouseInteractionComponent } from './mouse-interaction/mouse-interaction
     MiniMapCanvasComponent,
     ColorSelectComponent,
     FogCanvasComponent,
-    MouseInteractionComponent
+    MouseInteractionComponent,
+    GmNoteCanvasComponent
   ],
   exports: [
     DrawingCanvasComponent,
@@ -37,7 +39,8 @@ import { MouseInteractionComponent } from './mouse-interaction/mouse-interaction
     MiniMapCanvasComponent,
     ColorSelectComponent,
     FogCanvasComponent,
-    MouseInteractionComponent
+    MouseInteractionComponent,
+    GmNoteCanvasComponent
   ]
 })
 export class CanvasModule {}

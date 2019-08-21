@@ -14,6 +14,7 @@
         [color]="maps.server.global.color" 
         (select)="selectColor($event, -1)"></color-select>
       <ion-label>(Global)</ion-label>
+      <ion-icon name="refresh" (click)="presentResetGlobal()"></ion-icon>
       <ion-icon name="radio-button-on" *ngIf="maps.current == maps.server.global" color="dark"></ion-icon>
       <ion-icon *ngIf="maps.current != maps.server.global" name="radio-button-off"
         (click)="maps.changeCurrentView(-1)"></ion-icon>

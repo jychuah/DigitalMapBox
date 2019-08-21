@@ -27,7 +27,8 @@ export interface State {
     center: Point,
     scale: number
   },
-  regions: Region [ ]
+  regions: Region [ ],
+  gmnotes?: Vector[ ]
 }
 
 export interface View {

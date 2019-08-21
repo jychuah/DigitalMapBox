@@ -151,12 +151,16 @@ export class DrawingCanvasComponent extends BaseCanvasComponent implements After
     this.erase(data);
   }
 
-  redraw() {
-    super.redraw();
+  drawVectors() {
     this.maps.current.state.vectors.forEach(
       (vector) => {
         this.drawLine(vector);
       }
     )
+  }
+
+  redraw() {
+    super.redraw();
+    this.drawVectors();
   }
 }

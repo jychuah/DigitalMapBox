@@ -1,6 +1,7 @@
 <drawing-canvas></drawing-canvas>
 <map-canvas></map-canvas>
 <fog-canvas></fog-canvas>
+<gm-note-canvas *ngIf="maps.ui"></gm-note-canvas>
 <mouse-interaction></mouse-interaction>
 <mini-map-canvas *ngIf="maps.ui"></mini-map-canvas>
 <ion-fab vertical="bottom" horizontal="end" slot="fixed" *ngIf="!maps.ui">
@@ -22,9 +23,21 @@
 <ion-fab class="ui-open" vertical="bottom" horizontal="start" slot="fixed" *ngIf="maps.ui">
   <ion-fab-button
     class="layer-select"
+    attr.color="{{ layerStyle('gmdraw') }}"
+    (click)="setMouseEvents('gmdraw')">
+    <ion-icon name="create"></ion-icon>
+  </ion-fab-button>
+  <ion-fab-button
+    class="layer-select"
+    attr.color="{{ layerStyle('gmerase') }}"
+    (click)="setMouseEvents('gmerase')">
+    <ion-icon name="radio-button-on"></ion-icon>
+  </ion-fab-button> 
+  <ion-fab-button
+    class="layer-select"
     attr.color="{{ layerStyle('draw') }}"
     (click)="setMouseEvents('draw')">
-    <ion-icon name="create"></ion-icon>
+    <ion-icon name="brush"></ion-icon>
   </ion-fab-button>
   <ion-fab-button
     class="layer-select"

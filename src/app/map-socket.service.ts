@@ -20,7 +20,7 @@ export class MapSocketService {
     global: {
       name: "global",
       color: "#ffffff",
-        state: {
+      state: {
         vectors: [ ],
         viewport: {
           center: {
@@ -29,7 +29,8 @@ export class MapSocketService {
           },
           scale: 1.0
         },
-        regions: [ ]
+        regions: [ ],
+        gmnotes: [ ]
       }
     },
     views: [ ],
@@ -139,8 +140,12 @@ export class MapSocketService {
       if (data.event == "drawing") {
         this.current.state.vectors.push(data.data);
       }
+      if (data.event == "gmdrawing") {
+        this.current.state.gmnotes.push(data.data);
+      }
       if (data.event == "setview") {
         this.setCurrentView(data.data);
+        
       }
       if (data.event == "newview") {
         this.server.views.push(data.data);
@@ -151,6 +156,9 @@ export class MapSocketService {
         view.color = data.data.color;
         view.notes = data.data.notes;
         this.events.publish("redraw");
+      }
+      if (data.event == "globalreset") {
+        this.globalViewReset();''
       }
       if (data.event == "deleteview") {
         this.viewDeleted(data.data);
@@ -169,9 +177,11 @@ export class MapSocketService {
   setCurrentView(viewIndex: number = -1) {
     this.server.currentView = viewIndex;
     this.current = this.getView(viewIndex);
+    if (!("gmnotes" in this.current.state)) {
+      this.current.state.gmnotes = [ ];
+    }
     this.events.publish("viewport");
     this.events.publish("redraw");
-
   }
   
   changeCurrentView(viewIndex: number = -1) {
@@ -212,6 +222,18 @@ export class MapSocketService {
   deleteView(viewIndex: number) {
     this.viewDeleted(viewIndex);
     this.emit("deleteview", viewIndex);
+  }
+
+  globalViewReset() {
+    this.server.global.state.vectors = [ ];
+    this.server.global.state.regions = [ ];
+    this.server.global.state.gmnotes = [ ];
+    this.events.publish("redraw");
+  }
+
+  resetGlobalView() {
+    this.globalViewReset();
+    this.emit("globalreset");
   }
 
   toggleUI() {
