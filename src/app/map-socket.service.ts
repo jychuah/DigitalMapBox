@@ -52,7 +52,6 @@ export class MapSocketService {
       this.events.publish("imageloadcomplete");
       this.events.publish("redraw")
     }
-    this.determineLocalIp();
     this.previousCall = new Date().getTime();
   }
 
@@ -60,50 +59,30 @@ export class MapSocketService {
     return this.server.path && this.server.path.length > 0;
   }
 
-  determineLocalIp() {
-    window['RTCPeerConnection'] = this.getRTCPeerConnection();
-
-    const pc = new RTCPeerConnection({ iceServers: [] });
-    pc.createDataChannel('');
-    pc.createOffer().then(pc.setLocalDescription.bind(pc));
-
-    pc.onicecandidate = (ice) => {
-      this.zone.run(() => {
-        if (!ice || !ice.candidate || !ice.candidate.candidate) {
-          return;
-        }
-        let localIp = this.ipRegex.exec(ice.candidate.candidate)[1];
-        if (localIp === this.server.ip) {
-          this.isLocal = true;
-          console.log("This client is local to the server");
-          this.platform.ready().then(
-            () => {
-              this.onResize();
-              this.platform.resize.subscribe(() => {
-                this.onResize();
-              });
-            }
-          );
-        }
-        pc.onicecandidate = () => {};
-        pc.close();
-      });
-    };
+  notifyIsLocal() {
+    this.isLocal = true;
+    console.log("This client is local to the server");
+    this.platform.ready().then(
+      () => {
+        this.onResize();
+        this.platform.resize.subscribe(() => {
+          this.onResize();
+        });
+      }
+    );
   }
 
   onResize() {
     let time = new Date().getTime();
     if ((time - this.previousCall) < 10) { return; }
     this.previousCall = time;
-    if (this.isLocal) {
-      this.emit(
-        'localviewport', 
-        {
-          width: this.platform.width(), 
-          height: this.platform.height() 
-        }
-      );
-    }
+    this.emit(
+      'localviewport', 
+      {
+        width: this.platform.width(), 
+        height: this.platform.height() 
+      }
+    );
   }
 
   private getRTCPeerConnection() {
@@ -128,7 +107,6 @@ export class MapSocketService {
         this.image.src = this.url + this.server.path;
         this.setCurrentView(this.server.currentView);
         console.log("Loading", this.image.src);
-        this.determineLocalIp();
       }
       if (data.event == "localviewport") {
         this.localViewportMetrics = data.data;

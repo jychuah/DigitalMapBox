@@ -1,4 +1,5 @@
 import { Component, AfterViewInit } from '@angular/core';
+import { ActivatedRoute } from '@angular/router';
 import { MapSocketService } from '../map-socket.service';
 import { Platform, ModalController } from '@ionic/angular';
 import { FileModalPage } from '../file-modal/file-modal.page';
@@ -14,7 +15,8 @@ export class HomePage implements AfterViewInit {
 
   constructor(public maps: MapSocketService, private platform: Platform,
               private modalController: ModalController, private events: Events,
-              private toast: ToastController, private alerts: AlertController) {
+              private toast: ToastController, private alerts: AlertController,
+              private activated: ActivatedRoute) {
   }
 
   ngAfterViewInit() {
@@ -26,6 +28,13 @@ export class HomePage implements AfterViewInit {
     this.events.subscribe("shutdown", () => {
       this.toastShutdown();
     });
+    this.activated.queryParams.subscribe(
+      (params) => {
+        if (params.local && params.local === "true") {
+          this.maps.notifyIsLocal();
+        }
+      }
+    )
   }
 
   notesChange($event) {
