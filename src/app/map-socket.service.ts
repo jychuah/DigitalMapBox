@@ -41,6 +41,7 @@ export class MapSocketService {
   public isLocal: boolean = false;
   private ipRegex = new RegExp(/([0-9]{1,3}(\.[0-9]{1,3}){3}|[a-f0-9]{1,4}(:[a-f0-9]{1,4}){7})/);
   public localViewportMetrics: any = null;
+  public penColor: string = "#ffffff";
 
   previousCall: number = null;
 
@@ -158,6 +159,7 @@ export class MapSocketService {
     if (!("gmnotes" in this.current.state)) {
       this.current.state.gmnotes = [ ];
     }
+    this.penColor = this.current.color;
     this.events.publish("viewport");
     this.events.publish("redraw");
   }

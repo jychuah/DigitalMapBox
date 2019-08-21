@@ -44,7 +44,7 @@ export class DrawingCanvasComponent extends BaseCanvasComponent implements After
     this.context.beginPath();
     this.context.moveTo(vector.p0.x, vector.p0.y);
     this.context.lineTo(vector.p1.x, vector.p1.y);
-    this.context.strokeStyle = this.maps.current.color;
+    this.context.strokeStyle = vector.c ? vector.c : this.maps.current.color;
     this.context.lineWidth = vector.w;
     this.context.stroke();
     this.context.closePath();
@@ -70,7 +70,8 @@ export class DrawingCanvasComponent extends BaseCanvasComponent implements After
     let vector = {
       p0: this.current,
       p1: p,
-      w: 2 / this.maps.current.state.viewport.scale
+      w: 2 / this.maps.current.state.viewport.scale,
+      c: this.maps.penColor
     } 
     return vector;
   }

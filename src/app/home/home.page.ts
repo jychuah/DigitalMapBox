@@ -114,6 +114,10 @@ export class HomePage implements AfterViewInit {
     return "light"
   }
 
+  penColor($event) {
+    this.maps.penColor = $event;
+  }
+
   isDrawing() : boolean {
     return this.maps.mouseEvent === "draw" || this.maps.mouseEvent === "gmdraw";
   }

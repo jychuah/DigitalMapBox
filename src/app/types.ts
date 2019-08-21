@@ -18,7 +18,8 @@ export interface ViewPort {
 export interface Vector {
   p0: Point,
   p1: Point
-  w: number
+  w: number,
+  c?: string
 }
 
 export interface State {
