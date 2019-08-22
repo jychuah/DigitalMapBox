@@ -12,7 +12,9 @@ export interface Region {
 
 export interface ViewPort {
   center: Point,
-  scale: number
+  scale: number,
+  width?: number,
+  height?: number
 }
 
 export interface Vector {
@@ -45,5 +47,6 @@ export interface ServerState {
   ip: string,
   views: View[ ],
   global: View,
-  currentView: number
+  currentView: number,
+  localViewport: ViewPort
 }

@@ -1,0 +1,25 @@
+fa-icon {
+    font-size: 1.5em;
+}
+
+.lock {
+    display: inline-block;
+    background-color: var(--ion-color-light);
+    padding-top: 0.25em;
+    ion-icon {
+        display: block;
+        font-size: 1.5em;
+        width: 100%;
+    }
+}
+
+.ion-fab-button-row {
+    position: relative;
+    ion-fab-button {
+        display: inline-block;
+        margin-right: 1em;
+    }
+    margin-bottom: 0.5em;
+    text-align: right;
+}
+

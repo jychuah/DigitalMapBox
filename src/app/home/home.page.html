@@ -20,42 +20,6 @@
     <ion-icon name="snow"></ion-icon>
   </ion-fab-button>
 </ion-fab>
-<ion-fab class="ui-open" vertical="bottom" horizontal="start" slot="fixed" *ngIf="maps.ui">
-  <div class="ion-fab-button-row">
-    <color-select [color]="maps.penColor" (select)="penColor($event)"></color-select>
-    <ion-fab-button
-      class="layer-select"
-      attr.color="{{ drawing ? 'primary' : 'light' }}"
-      (click)="drawClick()">
-      <ion-icon name="brush"></ion-icon>
-    </ion-fab-button>
-    <ion-fab-button
-      class="layer-select"
-      attr.color="{{ erasing ? 'primary' : 'light' }}"
-      (click)="eraseClick()">
-      <fa-icon [icon]="faEraser"></fa-icon>
-    </ion-fab-button>
-    <ion-fab-button
-      class="layer-select"
-      attr.color="{{ revealing ? 'primary' : 'light' }}"
-      (click)="setRevealing()">
-      <ion-icon name="eye"></ion-icon>
-    </ion-fab-button>
-  </div>
-  <ion-item>
-    <ion-label>Draw on GM Layer</ion-label>
-    <ion-toggle [(ngModel)]="gmlayer" (ionChange)="gmlayerToggle()"></ion-toggle>
-  </ion-item>
-  <ion-item>
-    <ion-textarea 
-      placeholder="Notes" 
-      rows="6" 
-      cols="40" 
-      debounce="500"
-      [(ngModel)]="maps.current.notes"
-      (ionChange)="notesChange($event)"></ion-textarea>
-  </ion-item>
-</ion-fab>
 <ion-fab class="ui-open" vertical="bottom" horizontal="end" slot="fixed" *ngIf="maps.ui">
   <ion-fab-button
     color="light"

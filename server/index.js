@@ -14,7 +14,6 @@ const { exec } = require('child_process');
 var ifaces = os.networkInterfaces();
 var ipaddress = null;
 
-
 Object.keys(ifaces).forEach(function (ifname) {
   var alias = 0;
 
@@ -63,7 +62,16 @@ var server = {
   currentView: -1,
   ip: ipaddress,
   hostname: os.hostname(),
-  path: ""
+  path: "",
+  localViewport: {
+    width: 0,
+    height: 0,
+    center: {
+      x: 0,
+      y: 0
+    },
+    scale: 1.0
+  }
 } 
 
 const blankState = JSON.parse(JSON.stringify(server));
@@ -261,9 +269,12 @@ function syncHandler(socket) {
 function viewportHandler(socket, viewport) {
   let view = getCurrentView();
   view.state.viewport = viewport;
+  server.localViewport.center = viewport.center;
+  server.localViewport.scale = viewport.scale;
   saveServerState();
   console.log("Viewport change", viewport);
   broadcast(socket, "viewport", viewport);
+  localViewportHandler(socket, server.localViewport);
 }
 
 function saveHandler(socket) {
@@ -331,10 +342,10 @@ function shutdownHandler(socket) {
   broadcast(socket, "shutdown");
 }
 
-function localViewportHandler(socket, metrics) {
-  console.log("Received local viewport metrics", metrics);
-  broadcast(socket, "localviewport", metrics);
-  emit(socket, "localviewport", metrics);
+function localViewportHandler(socket, viewport) {
+  server.localViewport = viewport;
+  broadcast(socket, "localviewport", viewport);
+  emit(socket, "localviewport", viewport);
 }
 
 function globalResetHandler(socket) {
@@ -360,7 +371,7 @@ function onConnection(socket){
   socket.on('gmerasing' ,(vector) => gmerasingHandler(socket, vector));
   socket.on('reveal', (regions) => revealHandler(socket, regions));
   socket.on('deleteview', (viewIndex) => deleteViewHandler(socket, viewIndex));
-  socket.on('localviewport', (metrics) => localViewportHandler(socket, metrics));
+  socket.on('localviewport', (viewport) => localViewportHandler(socket, viewport));
   socket.on('fan', (pValue) => fanHandler(socket, pValue));
   socket.on('shutdown', () => shutdownHandler(socket));
   socket.on('globalreset', () => globalResetHandler(socket));

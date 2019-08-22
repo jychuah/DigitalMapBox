@@ -34,14 +34,23 @@ export class MapSocketService {
       }
     },
     views: [ ],
-    currentView: -1
+    currentView: -1,
+    localViewport: {
+      center: {
+        x: 0,
+        y: 0
+      },
+      scale: 1.0,
+      width: 0,
+      height: 0
+    }
   }
   public image: any = new Image();
   public current: View = this.server.global;
   public isLocal: boolean = false;
   private ipRegex = new RegExp(/([0-9]{1,3}(\.[0-9]{1,3}){3}|[a-f0-9]{1,4}(:[a-f0-9]{1,4}){7})/);
-  public localViewportMetrics: any = null;
   public penColor: string = "#ffffff";
+  public viewLocked: boolean = false;
 
   previousCall: number = null;
 
@@ -65,7 +74,7 @@ export class MapSocketService {
     console.log("This client is local to the server");
     this.platform.ready().then(
       () => {
-        this.onResize();
+        this.pushLocalViewport();
         this.platform.resize.subscribe(() => {
           this.onResize();
         });
@@ -73,30 +82,17 @@ export class MapSocketService {
     );
   }
 
+  pushLocalViewport() {
+    this.server.localViewport.width = this.platform.width();
+    this.server.localViewport.height = this.platform.height();
+    this.emit('localviewport', this.server.localViewport);
+  }
+
   onResize() {
     let time = new Date().getTime();
     if ((time - this.previousCall) < 10) { return; }
     this.previousCall = time;
-    this.emit(
-      'localviewport', 
-      {
-        width: this.platform.width(), 
-        height: this.platform.height() 
-      }
-    );
-  }
-
-  private getRTCPeerConnection() {
-    if ("RTCPeerConnection" in window) {
-      return window["RTCPeerConnection"];
-    }
-    if ("mozRTCPeerConnection" in window) {
-      return window["mozRTCPeerConnection"];
-    }
-    if ("webkitRTCPeerConnection" in window) {
-      return window["webkitRTCPeerConnection"];
-    }
-    return null;
+    this.pushLocalViewport();
   }
 
   connect() {
@@ -110,7 +106,7 @@ export class MapSocketService {
         console.log("Loading", this.image.src);
       }
       if (data.event == "localviewport") {
-        this.localViewportMetrics = data.data;
+        this.server.localViewport = data.data;
         this.events.publish("redraw");
       }
       if (data.event == "viewport") {
@@ -137,7 +133,7 @@ export class MapSocketService {
         this.events.publish("redraw");
       }
       if (data.event == "globalreset") {
-        this.globalViewReset();''
+        this.globalViewReset();
       }
       if (data.event == "deleteview") {
         this.viewDeleted(data.data);
