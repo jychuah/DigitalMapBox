@@ -52,7 +52,6 @@ export class ControlComponent implements OnInit {
   }
 
   setDrawingEvents() {
-    this.maps.mouseEvent = null;
     if (this.erasing) {
       this.maps.mouseEvent = (this.maps.viewLocked ? '' : 'gm') + 'erase';
     }
