@@ -1,5 +1,5 @@
 import { Component, OnInit } from '@angular/core';
-import { faEraser } from '@fortawesome/free-solid-svg-icons';
+import { faEraser, faUserSecret } from '@fortawesome/free-solid-svg-icons';
 import { MapSocketService } from '../../map-socket.service';
 import { Events } from '@ionic/angular';
 @Component({
@@ -9,10 +9,12 @@ import { Events } from '@ionic/angular';
 })
 export class ControlComponent implements OnInit {
   public faEraser: any = faEraser;
+  public faUserSecret: any = faUserSecret;
   public gmlayer: boolean = false;
   public erasing: boolean = false;
   public drawing: boolean = false;
   public revealing: boolean = false;
+  public gm: boolean = false;
 
   constructor(public maps: MapSocketService,  private events: Events) { }
 
@@ -28,13 +30,6 @@ export class ControlComponent implements OnInit {
 
   isErasing() : boolean {
     return this.maps.mouseEvent === "erase" || this.maps.mouseEvent === "gmerase"; 
-  }
-
-  lockToggle() {
-    this.setDrawingEvents();
-    this.maps.current.state.viewport.center = this.maps.server.localViewport.center;
-    this.maps.current.state.viewport.scale = this.maps.server.localViewport.scale;
-    this.events.publish("redraw");
   }
 
   drawClick() {
@@ -53,11 +48,21 @@ export class ControlComponent implements OnInit {
 
   setDrawingEvents() {
     if (this.erasing) {
-      this.maps.mouseEvent = (this.maps.viewLocked ? '' : 'gm') + 'erase';
+      this.maps.mouseEvent = (this.gm ? 'gm' : '') + 'erase';
     }
     if (this.drawing) {
-      this.maps.mouseEvent = (this.maps.viewLocked ? '' : 'gm') + 'draw';
+      this.maps.mouseEvent = (this.gm ? 'gm' : '') + 'draw';
     }
+  }
+
+  lockToggle() {
+    this.maps.current.state.viewport.center = this.maps.server.localViewport.center;
+    this.maps.current.state.viewport.scale = this.maps.server.localViewport.scale;
+    this.events.publish("redraw");
+  }
+
+  gmToggle() {
+    this.setDrawingEvents();
   }
 
   setRevealing() {

@@ -121,8 +121,9 @@ export class MiniMapCanvasComponent extends BaseCanvasComponent implements After
       x: e.clientX||e.touches[0].clientX,
       y: e.clientY||e.touches[0].clientY
     }
-    click.x -= this.el.nativeElement.offsetLeft;
-    click.y -= this.el.nativeElement.offsetTop;
+    let boundingRect = this.el.nativeElement.getBoundingClientRect();
+    click.x -= boundingRect.left;
+    click.y -= boundingRect.top;
     return click;
   }
 

@@ -35,14 +35,13 @@ mouse-interaction {
     z-index: 50;
 }
 
-mini-map-canvas {
+control {
     position: absolute;
     z-index: 100;
-    right: 1em;
-    top: 1em;
-    width: 25%;
-    height: 25%;
+    right: 0.75em;
+    top: 0.75em;
 }
+
 .ui-open {
     .layer-select,ion-fab-button[color="light"],ion-fab-button[color="danger"] {
         margin-bottom: 1em;
