@@ -70,7 +70,7 @@ export class GmNoteCanvasComponent extends DrawingCanvasComponent {
 
     if (!emit) { return; }
 
-    this.maps.emit('erasing', v);
+    this.maps.emit('gmerasing', v);
   }
 
 
