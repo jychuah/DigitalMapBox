@@ -2,8 +2,23 @@
     <canvas #canvas>
     </canvas>    
 </div>
-<!--
-<ion-range 
-    color="light" (ionChange)="scaleChange($event)"
-    [(ngModel)]="rangeSlider"></ion-range>
--->
+<div id="controls">
+    <ion-fab-button
+        color="light">
+        <ion-icon name="open"></ion-icon>
+    </ion-fab-button>
+    <ion-fab-button
+        [color]="isViewport('player') ? 'primary' : 'light'"
+        (click)="setViewport('player')">
+        <ion-icon name="logo-buffer"></ion-icon>
+    </ion-fab-button>
+    <ion-fab-button
+        [color]="isViewport('gm') ? 'primary' : 'light'"
+        (click)="setViewport('gm')">
+        <ion-icon name="speedometer"></ion-icon>
+    </ion-fab-button>
+    <ion-range 
+        color="light" 
+        (ionChange)="scaleChange($event)"
+        [(ngModel)]="rangeSlider"></ion-range>
+</div>

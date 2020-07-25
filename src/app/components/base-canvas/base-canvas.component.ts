@@ -9,7 +9,7 @@ import { Point } from '../../types';
 })
 export class BaseCanvasComponent implements AfterViewInit {
   @ViewChild('canvas', {static: false}) canvasEl: ElementRef;
-  @Input('groups') groups: string[] = [ "" ];
+  @Input('group') group: string = "";
   canvas: any;
   context: any;
   background: string = null;
@@ -57,7 +57,7 @@ export class BaseCanvasComponent implements AfterViewInit {
       this.redraw();
     });
     this.events.subscribe("group", (event) => {
-      let thisGroup: boolean = this.groups.includes(event.group);
+      let thisGroup: boolean = this.group === event.group;
       if (event.type === "visibility") {
         this.visible = thisGroup;
       }

@@ -7,46 +7,35 @@ export interface Point {
 export interface Region {
   p: Point,
   w: number,
-  h: number
+  h: number,
+  id: string,
+  revealed: boolean
+}
+
+export interface Camera {
+  center: Point,
+  scale: number
 }
 
 export interface ViewPort {
-  center: Point,
-  scale: number,
-  width?: number,
-  height?: number
+  width: number,
+  height: number
 }
 
 export interface Vector {
   p0: Point,
   p1: Point
   w: number,
-  c?: string
-}
-
-export interface State {
-  vectors: Vector[ ],
-  viewport: {
-    center: Point,
-    scale: number
-  },
-  regions: Region [ ],
-  gmnotes?: Vector[ ]
-}
-
-export interface View {
-  name: string,
-  state: State,
-  color: string,
-  notes?: string
+  c?: string,
+  id: string
 }
 
 export interface ServerState {
   path: string,
   hostname: string,
   ip: string,
-  views: View[ ],
-  global: View,
-  currentView: number,
-  localViewport: ViewPort
+  viewport: ViewPort,
+  camera: Camera,
+  vectors: Vector[ ],
+  regions: Region[ ]
 }

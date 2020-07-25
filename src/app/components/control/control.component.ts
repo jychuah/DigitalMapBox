@@ -56,9 +56,7 @@ export class ControlComponent implements OnInit {
   }
 
   lockToggle() {
-    this.maps.current.state.viewport.center = this.maps.server.localViewport.center;
-    this.maps.current.state.viewport.scale = this.maps.server.localViewport.scale;
-    this.events.publish("redraw");
+
   }
 
   gmToggle() {

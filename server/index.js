@@ -42,36 +42,22 @@ if (!ipaddress) {
 const extensions = [ 'png', 'jpg', '.jpeg' ];
 
 var server = {
-  global: {
-    name: "global",
-    color: "#ffffff",
-    state: {
-      vectors: [ ],
-      viewport: {
-        center: {
-          x: 0,
-          y: 0
-        },
-        scale: 1.0
-      },
-      regions: [ ],
-      gmnotes: [ ]
-    }
-  },
-  views: [ ],
-  currentView: -1,
   ip: ipaddress,
   hostname: os.hostname(),
   path: "",
-  localViewport: {
-    width: 0,
-    height: 0,
+  viewport: {
+    width: 1920,
+    height: 1080,
+  },
+  camera: {
     center: {
       x: 0,
       y: 0
     },
-    scale: 1.0
-  }
+    scale: 1.0,
+  },
+  regions: [ ],
+  vectors: [ ]
 } 
 
 const blankState = JSON.parse(JSON.stringify(server));
@@ -172,26 +158,20 @@ function imageLoadHandler(socket, path) {
   syncHandler(socket);
 }
 
-function revealHandler(socket, regions) {
-  let view = getCurrentView();
-  view.state.regions = regions;
-  console.log("Revealing ", regions.length, "regions", regions);
-  broadcast(socket, "reveal", regions);
-}
-
-function drawingHandler(socket, vector) {
-  let view = getCurrentView();
-  view.state.vectors.push(vector);
-  broadcast(socket, "drawing", vector);
-}
-
-function gmdrawingHandler(socket, vector) {
-  let view = getCurrentView();
-  if (!("gmnotes" in view.state)) {
-    view.state.gmnotes = [ ];
+function regionHandler(socket, region) {
+  let index = server.regions.findIndex(r => r.id === region.id);
+  if (index > -1) {
+    server.regions[index] = region;
+  } else {
+    server.regions.push(region);
   }
-  view.state.gmnotes.push(vector);
-  broadcast(socket, "gmnotes", vector);
+  console.log("Region ", region);
+  broadcast(socket, "region", region);
+}
+
+function vectorHandler(socket, vector) {
+  server.vectors.push(vector);
+  broadcast(socket, "drawing", vector);
 }
 
 function pointDistance(p, v) {
@@ -230,35 +210,18 @@ function vectorDistance(v1, v2) {
   return Math.min(pointDistance(v1.p0, v2), pointDistance(v1.p1, v2));
 }
 
-function erase(v) {
-  let view = getCurrentView();
-  view.state.vectors = view.state.vectors.filter(
-    (vector) => {
-      return vectorDistance(v, vector) > 10 / view.state.viewport.scale;
+function eraseHandler(socket, vector) {
+  let erased = server.vectors.reduce(
+    (results, vector) => {
+      if (vectorDistance(v, vector) < 10 / server.viewport.scale) {
+        results.push(vector.id);
+      }
     }
   )
-}
-
-function gmerase(v) {
-  let view = getCurrentView();
-  if (!view.state.gmnotes) {
-    view.state.gmnotes = [ ];
-  }
-  view.state.gmnotes = view.state.gmnotes.filter(
-    (vector) => {
-      return vectorDistance(v, vector) > 10 / view.state.viewport.scale;
-    }
-  ) 
-}
-
-function erasingHandler(socket, vector) {
-  broadcast(socket, "erasing", vector);
-  erase(vector);
-}
-
-function gmerasingHandler(socket, vector) {
-  broadcast(socket, "gmerasing", vector);
-  gmerase(vector);
+  broadcast(socket, "erasing", erased);
+  server.vectors = server.vectors.filter(
+    (vector) => !erased.includes(vector.id)
+  )
 }
 
 function syncHandler(socket) {
@@ -266,15 +229,11 @@ function syncHandler(socket) {
   emit(socket, 'sync', server);
 }
 
-function viewportHandler(socket, viewport) {
-  let view = getCurrentView();
-  view.state.viewport = viewport;
-  server.localViewport.center = viewport.center;
-  server.localViewport.scale = viewport.scale;
+function cameraHandler(socket, camera) {
+  server.camera = camera;
   saveServerState();
-  console.log("Viewport change", viewport);
-  broadcast(socket, "viewport", viewport);
-  localViewportHandler(socket, server.localViewport);
+  console.log("Camera change", camera);
+  broadcast(socket, "camera", camera);
 }
 
 function saveHandler(socket) {
@@ -284,49 +243,6 @@ function saveHandler(socket) {
     console.log("Saved metadata for", server.path);
     emit(socket, "savecomplete");
   }
-}
-
-function newViewHandler(socket, view) {
-  server.views.push(view);
-  console.log("Received new view", view);
-  broadcast(socket, "newview", view);
-}
-
-function updateViewHandler(socket, viewdata) {
-  let view;
-  if (viewdata.index == -1) {
-    view = server.global;
-  } else {
-    view = server.views[viewdata.index];
-  }
-  view.name = viewdata.name;
-  view.color = viewdata.color;
-  console.log("Updating view metadata", viewdata);
-  broadcast(socket, "updateview", viewdata);
-}
-
-function setViewHandler(socket, viewIndex) {
-  server.currentView = viewIndex;
-  console.log("Changing views", viewIndex);
-  broadcast(socket, "setview", viewIndex);
-}
-
-function deleteViewHandler(socket, viewIndex) {
-  server.views.splice(viewIndex, 1);
-  console.log("Deleting view", viewIndex);
-  broadcast(socket, "deleteview", viewIndex);
-}
-
-function fanHandler(socket, pValue) {
-  exec('sudo hub-ctrl -h 0 -P 2 -p ' + pValue, (err, stdout, stderr) => {
-    if (err) {
-      // node couldn't execute the command
-      console.log("Couldn't execute command");
-      return;
-    }
-    console.log(`stdout: ${stdout}`);
-    console.log(`stderr: ${stderr}`);
-  });
 }
 
 function shutdownHandler(socket) {
@@ -342,37 +258,22 @@ function shutdownHandler(socket) {
   broadcast(socket, "shutdown");
 }
 
-function localViewportHandler(socket, viewport) {
-  server.localViewport = viewport;
-  broadcast(socket, "localviewport", viewport);
-  emit(socket, "localviewport", viewport);
-}
-
 function globalResetHandler(socket) {
   console.log("Reseting global view");
-  server.global.state.vectors = [ ];
-  server.global.state.regions = [ ];
-  server.global.state.gmnotes = [ ];
+  server.vectors = [ ];
+  server.regions = [ ];
   broadcast(socket, "globalreset");
 }
 
 function onConnection(socket){
-  socket.on('drawing', (vector) => drawingHandler(socket, vector));
-  socket.on('gmdrawing', (vector) => gmdrawingHandler(socket, vector));
+  socket.on('vector', (vector) => vectorHandler(socket, vector));
   socket.on('filelist', (path) => fileListHandler(socket, path));
   socket.on('imageload', (path) => imageLoadHandler(socket, path));
   socket.on('sync', () => syncHandler(socket));
-  socket.on('viewport', (viewport) => viewportHandler(socket, viewport));
+  socket.on('camera', (camera) => cameraHandler(socket, camera));
   socket.on('save', () => saveHandler(socket));
-  socket.on('newview', (view) => newViewHandler(socket, view));
-  socket.on('setview', (viewIndex) => setViewHandler(socket, viewIndex));
-  socket.on('updateview', (viewData) => updateViewHandler(socket, viewData))
-  socket.on('erasing', (vector) => erasingHandler(socket, vector));
-  socket.on('gmerasing' ,(vector) => gmerasingHandler(socket, vector));
-  socket.on('reveal', (regions) => revealHandler(socket, regions));
-  socket.on('deleteview', (viewIndex) => deleteViewHandler(socket, viewIndex));
-  socket.on('localviewport', (viewport) => localViewportHandler(socket, viewport));
-  socket.on('fan', (pValue) => fanHandler(socket, pValue));
+  socket.on('erase', (vector) => eraseHandler(socket, vector));
+  socket.on('region', (region) => regionHandler(socket, region));
   socket.on('shutdown', () => shutdownHandler(socket));
   socket.on('globalreset', () => globalResetHandler(socket));
   syncHandler(socket);

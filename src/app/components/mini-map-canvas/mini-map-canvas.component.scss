@@ -6,3 +6,20 @@
     background-repeat: no-repeat;
     background-size: contain;
 }
+
+#controls {
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    width: 80%;
+}
+
+ion-range {
+    display: inline-block;
+    width: 60%;
+}
+
+ion-fab-button {
+    display: inline-block;
+    margin-right: 1em;
+}

@@ -35,6 +35,8 @@ export class MiniMapCanvasComponent extends BaseCanvasComponent implements After
   previousCall: number = null;
   localViewportMetrics: any = null;
 
+  currentViewport: string = "gm";
+
   constructor(public platform: Platform, 
               public events: Events, 
               public maps: MapSocketService,
@@ -220,5 +222,19 @@ export class MiniMapCanvasComponent extends BaseCanvasComponent implements After
         }
       )
     }
+  }
+
+  isViewport(viewport: string) {
+    return this.currentViewport == viewport;
+  }
+
+  setViewport(viewport: string) {
+    this.currentViewport = viewport;
+  }
+
+  lockToggle() {
+    this.maps.current.state.viewport.center = this.maps.server.localViewport.center;
+    this.maps.current.state.viewport.scale = this.maps.server.localViewport.scale;
+    this.events.publish("redraw");
   }
 }

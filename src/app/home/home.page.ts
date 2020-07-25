@@ -31,13 +31,6 @@ export class HomePage implements AfterViewInit {
     this.events.subscribe("shutdown", () => {
       this.toastShutdown();
     });
-    this.activated.queryParams.subscribe(
-      (params) => {
-        if (params.local && params.local === "true") {
-          this.maps.notifyIsLocal();
-        }
-      }
-    )
     this.setTop("player");
   }
 
