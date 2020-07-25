@@ -1,4 +1,7 @@
-<canvas #canvas></canvas>
+<div [style.background-image]="getBackgroundImage()" id="minimap-background">
+    <canvas #canvas>
+    </canvas>    
+</div>
 <!--
 <ion-range 
     color="light" (ionChange)="scaleChange($event)"

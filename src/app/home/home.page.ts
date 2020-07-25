@@ -38,10 +38,12 @@ export class HomePage implements AfterViewInit {
         }
       }
     )
+    this.events.publish("group", "player");
   }
 
   setTop(layer: string) {
     this.topLayer = layer;
+    this.events.publish("group", layer);
   }
 
   isTop(layer: string) {

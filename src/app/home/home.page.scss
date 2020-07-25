@@ -44,12 +44,12 @@ div[id^='canvas-group'] {
     visibility: hidden;
 }
 
-.layer-id {
-    color: black !important;
+div#canvas-group-base{
+    visibility: visible !important;
 }
 
 .visible-canvas {
-    visibility: visible;
+    visibility: visible !important;
     z-index: 20 !important;
 }
 

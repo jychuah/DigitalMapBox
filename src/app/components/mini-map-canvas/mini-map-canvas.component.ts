@@ -3,7 +3,7 @@ import { BaseCanvasComponent } from '../base-canvas/base-canvas.component';
 import { Events, Platform } from '@ionic/angular';
 import { MapSocketService } from '../../map-socket.service';
 import { ViewPort, Point } from '../../types';
-import { THIS_EXPR } from '@angular/compiler/src/output/output_ast';
+import { DomSanitizer } from '@angular/platform-browser';
 
 @Component({
   selector: 'mini-map-canvas',
@@ -38,7 +38,8 @@ export class MiniMapCanvasComponent extends BaseCanvasComponent implements After
   constructor(public platform: Platform, 
               public events: Events, 
               public maps: MapSocketService,
-              private el: ElementRef) { 
+              private el: ElementRef,
+              private dom: DomSanitizer) { 
     super(platform, events, maps);
   }
 
@@ -74,6 +75,10 @@ export class MiniMapCanvasComponent extends BaseCanvasComponent implements After
     this.canvas.addEventListener('touchcancel', (e) => this.onMouseUp(e), false);
     this.canvas.addEventListener('touchmove', (e) => this.throttleMouseMove(e), false);
     this.previousCall = new Date().getTime();
+  }
+
+  getBackgroundImage() {
+    return this.dom.bypassSecurityTrustStyle("url('" + this.maps.image.src + "')");
   }
 
   throttleMouseMove(e) {
@@ -199,13 +204,13 @@ export class MiniMapCanvasComponent extends BaseCanvasComponent implements After
   redraw() {
     if (!this.maps.imageLoaded() || !this.maps.image.complete) { return; }
     this.context.setTransform(1, 0, 0, 1, 0, 0);
-    this.context.style = "black";
+    this.context.fillStyle = "#00000000";
     this.context.fillRect(0, 0, this.canvas.width, this.canvas.height);
     if (!this.maps.image.complete) {
       return;
     }
     this.context.setTransform(this.scale, 0, 0, this.scale, this.dx, this.dy);
-    this.context.drawImage(this.maps.image, 0, 0);
+    //this.context.drawImage(this.maps.image, 0, 0);
     this.drawViewPort(this.maps.server.localViewport, "#ffffff88", "#ffffff44");
     if (this.dragging) {
       this.drawViewPort(this.localView, this.maps.current.color);
@@ -221,6 +226,7 @@ export class MiniMapCanvasComponent extends BaseCanvasComponent implements After
     }
   }
 
+  /*
   onResize() {
     this.canvas.width = this.el.nativeElement.clientWidth;
     this.canvas.height = this.el.nativeElement.clientHeight;
@@ -228,4 +234,5 @@ export class MiniMapCanvasComponent extends BaseCanvasComponent implements After
     this.calculateMetrics();
     this.redraw();
   }
+  */
 }

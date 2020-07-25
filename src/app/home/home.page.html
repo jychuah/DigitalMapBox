@@ -1,16 +1,19 @@
+<div id="canvas-group-base">
+  <map-canvas [groups]="['player', 'gm']"></map-canvas>
+</div>
 <div id="canvas-group-player" [class]="canvasGroupClass('player')">
-  <span class="layer-id">Player</span>
-  <drawing-canvas [visible]="isTop('player')"></drawing-canvas>
-  <fog-canvas [visible]="isTop('player')"></fog-canvas>
+  <!--
+  <drawing-canvas [groups]="['player']""></drawing-canvas>
+  <fog-canvas [groups]="['player']"></fog-canvas>
+  -->
 </div>
 <div id="canvas-group-gm" [class]="canvasGroupClass('gm')">
-  <span class="layer-id">GM</span>
-  <map-canvas [visible]="isTop('gm')"></map-canvas>
-  <gm-note-canvas [visible]="isTop('gm')"></gm-note-canvas>
+  <!--
+  <gm-note-canvas [groups]=['gm']></gm-note-canvas>
+  -->
 </div>
 <div id="canvas-group-minimap" [class]="canvasGroupClass('minimap')">
-  <span class="layer-id">Minimap</span>
-  <mini-map-canvas [visible]="isTop('minimap')"></mini-map-canvas>
+  <mini-map-canvas [groups]="['minimap']"></mini-map-canvas>
 </div>
 <mouse-interaction></mouse-interaction>
 <control *ngIf="maps.ui"></control>

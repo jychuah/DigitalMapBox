@@ -1,1 +1,8 @@
 @import '../base-canvas/base-canvas.component.scss';
+
+#minimap-background {
+    background-color: black;
+    background-position: center;
+    background-repeat: no-repeat;
+    background-size: contain;
+}

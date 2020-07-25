@@ -9,10 +9,11 @@ import { Point } from '../../types';
 })
 export class BaseCanvasComponent implements AfterViewInit {
   @ViewChild('canvas', {static: false}) canvasEl: ElementRef;
-  @Input('visible') visible: boolean = false;
+  @Input('groups') groups: string[] = [ "" ];
   canvas: any;
   context: any;
   background: string = null;
+  visible: boolean = false;
 
   constructor(public platform: Platform, 
               public events: Events, 
@@ -42,6 +43,12 @@ export class BaseCanvasComponent implements AfterViewInit {
     });
     this.events.subscribe("viewport", () => {
       this.redraw();
+    });
+    this.events.subscribe("group", (topGroup) => {
+      this.visible = this.groups.includes(topGroup);
+      if (this.visible) {
+        this.redraw();
+      }
     });
   }
 
@@ -103,6 +110,7 @@ export class BaseCanvasComponent implements AfterViewInit {
   }
 
   redraw() {
+    if (!this.visible) return;
     this.context.setTransform(1, 0, 0, 1, 0, 0);
     if (this.background) {
       this.context.fillStyle = this.background;

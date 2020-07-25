@@ -86,6 +86,7 @@ export class FogCanvasComponent extends BaseCanvasComponent {
   }
 
   redraw() {
+    if (!this.visible) return;
     super.redraw();
     if (!this.maps.imageLoaded() || !this.maps.image.complete ) { return; }
     if (!this.maps.ui) {
