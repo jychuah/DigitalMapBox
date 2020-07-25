@@ -1,4 +1,4 @@
-import { Component, AfterViewInit, ViewChild, ElementRef } from '@angular/core';
+import { Component, AfterViewInit, ViewChild, ElementRef, Input } from '@angular/core';
 import { Platform, Events } from '@ionic/angular';
 import { MapSocketService } from '../../map-socket.service';
 import { Point } from '../../types';
@@ -9,6 +9,7 @@ import { Point } from '../../types';
 })
 export class MouseInteractionComponent implements AfterViewInit {
   @ViewChild('div', {static: false}) divEl: ElementRef;
+  @Input('groups') groups: string[] = [ "" ];
   div: any;
   previousCall: number = null;
 
@@ -66,9 +67,12 @@ export class MouseInteractionComponent implements AfterViewInit {
   }
 
   onMouseDown(e) {
-    if (this.maps.mouseEvent) {
-      this.events.publish("mouseDown" + this.maps.mouseEvent, this.getLocalPoint(e));
+    console.log("mousedown");
+    let event = {
+      type: "mouseDown",
+      data: this.getLocalPoint(e)
     }
+    this.events.publish("group", event);
   }
 
   onMouseUp(e) {

@@ -205,12 +205,8 @@ export class MiniMapCanvasComponent extends BaseCanvasComponent implements After
     if (!this.maps.imageLoaded() || !this.maps.image.complete) { return; }
     this.context.setTransform(1, 0, 0, 1, 0, 0);
     this.context.fillStyle = "#00000000";
-    this.context.fillRect(0, 0, this.canvas.width, this.canvas.height);
-    if (!this.maps.image.complete) {
-      return;
-    }
+    this.context.clearRect(0, 0, this.canvas.width, this.canvas.height);
     this.context.setTransform(this.scale, 0, 0, this.scale, this.dx, this.dy);
-    //this.context.drawImage(this.maps.image, 0, 0);
     this.drawViewPort(this.maps.server.localViewport, "#ffffff88", "#ffffff44");
     if (this.dragging) {
       this.drawViewPort(this.localView, this.maps.current.color);
@@ -225,14 +221,4 @@ export class MiniMapCanvasComponent extends BaseCanvasComponent implements After
       )
     }
   }
-
-  /*
-  onResize() {
-    this.canvas.width = this.el.nativeElement.clientWidth;
-    this.canvas.height = this.el.nativeElement.clientHeight;
-    this.viewscale = this.canvas.width / this.platform.width();
-    this.calculateMetrics();
-    this.redraw();
-  }
-  */
 }

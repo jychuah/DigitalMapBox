@@ -14,13 +14,25 @@ export class BaseCanvasComponent implements AfterViewInit {
   context: any;
   background: string = null;
   visible: boolean = false;
-
+  previousCall: number = null;
+  
   constructor(public platform: Platform, 
               public events: Events, 
               public maps: MapSocketService) { }
 
   ngAfterViewInit() {
     this.initCanvas();
+    this.canvas.addEventListener('mousedown', (e) => this.onMouseDown(e), false);
+    this.canvas.addEventListener('mouseup', (e) => this.onMouseUp(e), false);
+    this.canvas.addEventListener('mouseout', (e) => this.onMouseUp(e), false);
+    this.canvas.addEventListener('mousemove', (e) => this.throttleMouseMove(e), false);
+    
+    //Touch support for mobile devices
+    this.canvas.addEventListener('touchstart', (e) => this.onMouseDown(e), false);
+    this.canvas.addEventListener('touchend', (e) => this.onMouseUp(e), false);
+    this.canvas.addEventListener('touchcancel', (e) => this.onMouseUp(e), false);
+    this.canvas.addEventListener('touchmove', (e) => this.throttleMouseMove(e), false);
+    this.previousCall = new Date().getTime();
   }
 
   initCanvas() {
@@ -44,13 +56,50 @@ export class BaseCanvasComponent implements AfterViewInit {
     this.events.subscribe("viewport", () => {
       this.redraw();
     });
-    this.events.subscribe("group", (topGroup) => {
-      this.visible = this.groups.includes(topGroup);
+    this.events.subscribe("group", (event) => {
+      let thisGroup: boolean = this.groups.includes(event.group);
+      if (event.type === "visibility") {
+        this.visible = thisGroup;
+      }
       if (this.visible) {
         this.redraw();
       }
+
+      if (!thisGroup) return;
     });
   }
+
+  getLocalPoint(e) : Point {
+    let p = {
+      x: 0,
+      y: 0
+    }
+    if ("clientX" in e) {
+      p.x = e.clientX;
+      p.y = e.clientY;
+    } else if (e.touches[0]) {
+      p.x = e.touches[0].clientX;
+      p.y = e.touches[0].clientY;
+    } else if (e.changedTouches[0]) {
+      p.x = e.changedTouches[0].clientX;
+      p.y = e.changedTouches[0].clientY;
+    }
+    p.x -= this.platform.width() / 2;
+    p.y -= this.platform.height() / 2;
+    p.x /= this.maps.current.state.viewport.scale;
+    p.y /= this.maps.current.state.viewport.scale;
+    p.x += this.maps.current.state.viewport.center.x;
+    p.y += this.maps.current.state.viewport.center.y;
+    return p;
+  }
+
+  throttleMouseMove(e) {
+    let time = new Date().getTime();
+    if ((time - this.previousCall) < 10) { return; }
+    this.previousCall = time;
+    this.onMouseMove(e);
+  }
+
 
   subscribe(mouseEvent: string) {
     this.events.subscribe("mouseDown" + mouseEvent, (e) => {
@@ -87,16 +136,6 @@ export class BaseCanvasComponent implements AfterViewInit {
       -this.maps.current.state.viewport.center.x,
       -this.maps.current.state.viewport.center.y
     );
-  }
-
-  getLocalPoint(p: Point) : Point {
-    p.x -= this.platform.width() / 2;
-    p.y -= this.platform.height() / 2;
-    p.x /= this.maps.current.state.viewport.scale;
-    p.y /= this.maps.current.state.viewport.scale;
-    p.x += this.maps.current.state.viewport.center.x;
-    p.y += this.maps.current.state.viewport.center.y;
-    return p;
   }
 
   connect() {
