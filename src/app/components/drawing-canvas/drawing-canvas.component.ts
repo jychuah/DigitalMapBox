@@ -113,6 +113,7 @@ export class DrawingCanvasComponent extends BaseCanvasComponent implements After
   }
 
   onMouseUp(p) {
+    if (!this.visible) return;
     if (this.drawing) {
       this.drawLine(this.generateVector(p), true);
     }
@@ -121,6 +122,7 @@ export class DrawingCanvasComponent extends BaseCanvasComponent implements After
   }
 
   onMouseMove(p) {
+    if (!this.visible) return;
     if (this.drawing) {
       this.drawLine(this.generateVector(p), true);
     }
@@ -161,6 +163,7 @@ export class DrawingCanvasComponent extends BaseCanvasComponent implements After
   }
 
   redraw() {
+    if (!this.visible) return;
     super.redraw();
     this.drawVectors();
   }

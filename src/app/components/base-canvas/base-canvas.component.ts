@@ -1,4 +1,4 @@
-import { Component, AfterViewInit, ViewChild, ElementRef } from '@angular/core';
+import { Component, AfterViewInit, ViewChild, ElementRef, Input } from '@angular/core';
 import { Platform, Events } from '@ionic/angular';
 import { MapSocketService } from '../../map-socket.service';
 import { Point } from '../../types';
@@ -9,6 +9,7 @@ import { Point } from '../../types';
 })
 export class BaseCanvasComponent implements AfterViewInit {
   @ViewChild('canvas', {static: false}) canvasEl: ElementRef;
+  @Input('visible') visible: boolean = false;
   canvas: any;
   context: any;
   background: string = null;

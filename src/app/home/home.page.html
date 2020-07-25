@@ -1,9 +1,40 @@
-<drawing-canvas></drawing-canvas>
-<map-canvas></map-canvas>
-<fog-canvas></fog-canvas>
-<gm-note-canvas *ngIf="maps.ui"></gm-note-canvas>
+<div id="canvas-group-player" [class]="canvasGroupClass('player')">
+  <span class="layer-id">Player</span>
+  <drawing-canvas [visible]="isTop('player')"></drawing-canvas>
+  <fog-canvas [visible]="isTop('player')"></fog-canvas>
+</div>
+<div id="canvas-group-gm" [class]="canvasGroupClass('gm')">
+  <span class="layer-id">GM</span>
+  <map-canvas [visible]="isTop('gm')"></map-canvas>
+  <gm-note-canvas [visible]="isTop('gm')"></gm-note-canvas>
+</div>
+<div id="canvas-group-minimap" [class]="canvasGroupClass('minimap')">
+  <span class="layer-id">Minimap</span>
+  <mini-map-canvas [visible]="isTop('minimap')"></mini-map-canvas>
+</div>
 <mouse-interaction></mouse-interaction>
 <control *ngIf="maps.ui"></control>
+<ion-fab vertical="bottom" horizontal="end" slot="fixed" class="vertical-ui">
+  <ion-fab-button
+    [color]="isTop('gm') ? 'primary' : 'light'"
+    data-desc="GM"
+    (click)="setTop('gm')">
+    <ion-icon name="speedometer"></ion-icon>
+  </ion-fab-button>
+  <ion-fab-button
+    [color]="isTop('minimap') ? 'primary' : 'light'"
+    data-desc="Minimap"
+    (click)="setTop('minimap')">
+    <ion-icon name="move"></ion-icon>
+  </ion-fab-button>
+  <ion-fab-button
+    [color]="isTop('player') ? 'primary' : 'light'"
+    data-desc="Player View"
+    (click)="setTop('player')">
+    <ion-icon name="logo-buffer"></ion-icon>
+  </ion-fab-button>
+</ion-fab>
+<!--
 <ion-fab vertical="bottom" horizontal="end" slot="fixed" *ngIf="!maps.ui">
   <ion-fab-button 
     color="light" 
@@ -48,3 +79,4 @@
     <ion-icon name="logo-buffer"></ion-icon>
   </ion-fab-button>
 </ion-fab>
+-->

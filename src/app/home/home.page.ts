@@ -14,6 +14,8 @@ import { faEraser } from '@fortawesome/free-solid-svg-icons';
 export class HomePage implements AfterViewInit {
   public saving: boolean = false;
 
+  topLayer: string = "player";
+
   constructor(public maps: MapSocketService, private platform: Platform,
               private modalController: ModalController, private events: Events,
               private toast: ToastController, private alerts: AlertController,
@@ -36,6 +38,21 @@ export class HomePage implements AfterViewInit {
         }
       }
     )
+  }
+
+  setTop(layer: string) {
+    this.topLayer = layer;
+  }
+
+  isTop(layer: string) {
+    return layer === this.topLayer;
+  }
+
+  canvasGroupClass(layer: string) {
+    if (this.isTop(layer)) {
+      return "visible-canvas";
+    }
+    return "";
   }
 
   async toastShutdown() {
