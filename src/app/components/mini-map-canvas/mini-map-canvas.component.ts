@@ -86,6 +86,15 @@ export class MiniMapCanvasComponent extends BaseCanvasComponent implements After
     this.previousCall = new Date().getTime();
   }
 
+  onResize() {
+    this.canvas.width = this.platform.width();
+    this.canvas.height = this.platform.height()
+    this.localViewport.width = this.canvas.width;
+    this.localViewport.height = this.canvas.height;
+    this.calculateMetrics();
+    this.redraw();
+  }
+
   getBackgroundImage() {
     return this.dom.bypassSecurityTrustStyle("url('" + this.maps.image.src + "')");
   }
@@ -163,7 +172,7 @@ export class MiniMapCanvasComponent extends BaseCanvasComponent implements After
 
   onMouseUp(e) {
     if (this.dragging) {
-      this.maps.localCameras[this.currentCamera] = this.draggableCamera;
+      this.maps.localCameras.gm = this.draggableCamera;
       this.events.publish("viewport");
     }
     this.dragging = false;
@@ -183,8 +192,8 @@ export class MiniMapCanvasComponent extends BaseCanvasComponent implements After
       width: 0,
       height: 0
     };
-    let width = viewport.width || this.platform.width();
-    let height = viewport.height || this.platform.height();
+    let width = viewport.width || this.localViewport.width;
+    let height = viewport.height || this.localViewport.height;
     localRect.x = (-width / 2 / camera.scale + camera.center.x) * this.scale + this.dx;
     localRect.y = (-height / 2 / camera.scale + camera.center.y) * this.scale + this.dy;
     localRect.width = width * this.scale / camera.scale;
@@ -212,8 +221,8 @@ export class MiniMapCanvasComponent extends BaseCanvasComponent implements After
     this.context.fillStyle = "#00000000";
     this.context.clearRect(0, 0, this.canvas.width, this.canvas.height);
     this.context.setTransform(this.scale, 0, 0, this.scale, this.dx, this.dy);
-    // Draw server viewport and camera
-    this.drawViewPort(this.maps.server.viewport, this.maps.server.camera, "#ffffff88", "#ffffff44");
+    // Draw server viewport, with player camera
+    this.drawViewPort(this.maps.server.viewport, this.maps.localCameras.player, "#ffffff88", "#ffffff44");
 
     if (this.dragging) {
       this.drawViewPort(this.localViewport, this.draggableCamera, "#ffffff");
@@ -231,19 +240,17 @@ export class MiniMapCanvasComponent extends BaseCanvasComponent implements After
     this.currentCamera = camera;
   }
 
-  snap() {
+  snapToGM() {
+    this.maps.localCameras.player = { ...this.maps.localCameras.gm };
+    this.redraw();
+  }
 
+  snapToPlayer() {
+    this.maps.localCameras.gm = { ...this.maps.localCameras.player };
+    this.redraw();
   }
 
   send() {
-
-  }
-
-  lockToggle() {
-    /*
-    this.maps.current.state.viewport.center = this.maps.server.localViewport.center;
-    this.maps.current.state.viewport.scale = this.maps.server.localViewport.scale;
-    this.events.publish("redraw");
-    */
+    this.maps.publishCamera("player");
   }
 }

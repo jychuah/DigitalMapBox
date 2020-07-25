@@ -9,7 +9,6 @@ import { MiniMapCanvasComponent} from './mini-map-canvas/mini-map-canvas.compone
 import { ColorSelectComponent } from './color-select/color-select.component';
 import { FormsModule } from '@angular/forms';
 import { FogCanvasComponent } from './fog-canvas/fog-canvas.component';
-import { MouseInteractionComponent } from './mouse-interaction/mouse-interaction.component';
 import { GmNoteCanvasComponent } from './gm-note-canvas/gm-note-canvas.component';
 import { ControlComponent } from './control/control.component';
 import { FontAwesomeModule } from '@fortawesome/angular-fontawesome';
@@ -31,7 +30,6 @@ import { FontAwesomeModule } from '@fortawesome/angular-fontawesome';
     MiniMapCanvasComponent,
     ColorSelectComponent,
     FogCanvasComponent,
-    MouseInteractionComponent,
     GmNoteCanvasComponent,
     ControlComponent
   ],
@@ -43,7 +41,6 @@ import { FontAwesomeModule } from '@fortawesome/angular-fontawesome';
     MiniMapCanvasComponent,
     ColorSelectComponent,
     FogCanvasComponent,
-    MouseInteractionComponent,
     GmNoteCanvasComponent,
     ControlComponent
   ]

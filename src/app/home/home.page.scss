@@ -26,14 +26,6 @@ gm-note-canvas {
     z-index: 20; 
 }
 
-mouse-interaction {
-    position: absolute;
-    left: 0;
-    top: 0;
-    width: 100%;
-    height: 100%;
-    z-index: 50;
-}
 
 div[id^='canvas-group'] {
     position: absolute;

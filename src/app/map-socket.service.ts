@@ -107,6 +107,7 @@ export class MapSocketService {
       if (data.event == "camera") {
         this.server.camera = data.data;
         this.localCameras.player = data.data;
+        this.events.publish("redraw");
       }
       if (data.event == "vector") {
         this.server.vectors.push(data.data);
