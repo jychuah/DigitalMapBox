@@ -75,6 +75,6 @@ export class ControlComponent implements OnInit {
   }
 
   notesChange($event) {
-    this.maps.updateView(this.maps.server.currentView);
+    //this.maps.updateView(this.maps.server.currentView);
   }
 }

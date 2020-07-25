@@ -1,21 +1,27 @@
 <div id="canvas-group-player" [class]="canvasGroupClass('player')">
-  <map-canvas group="player"></map-canvas>
+  <map-canvas group="player" id="playermap"></map-canvas>
   <!--
   <drawing-canvas [groups]="['player']""></drawing-canvas>
   <fog-canvas [groups]="['player']"></fog-canvas>
   -->
 </div>
 <div id="canvas-group-gm" [class]="canvasGroupClass('gm')">
-  <map-canvas group="gm"></map-canvas>
+  <map-canvas group="gm" id="gmmap"></map-canvas>
   <!--
   <gm-note-canvas [groups]=['gm']></gm-note-canvas>
   -->
 </div>
 <div id="canvas-group-minimap" [class]="canvasGroupClass('minimap')">
-  <mini-map-canvas group="minimap"></mini-map-canvas>
+  <mini-map-canvas group="minimap" id="minimap"></mini-map-canvas>
 </div>
 <control *ngIf="maps.ui"></control>
 <ion-fab vertical="bottom" horizontal="end" slot="fixed" class="vertical-ui">
+  <ion-fab-button 
+    color="light" 
+    attr.data-desc="{{ filenameInfo() }}"
+    (click)="presentFileModal()">
+    <ion-icon name="folder-open"></ion-icon>
+  </ion-fab-button>
   <ion-fab-button
     [color]="isTop('minimap') ? 'primary' : 'light'"
     data-desc="Minimap"

@@ -5,7 +5,7 @@ import { MapSocketService } from '../../map-socket.service';
 import { BaseCanvasComponent } from '../base-canvas/base-canvas.component';
 import { Events } from '@ionic/angular';
 import { Vector, Point } from '../../types';
-
+import * as uuidv4 from 'uuid/v4';
 @Component({
   selector: 'drawing-canvas',
   templateUrl: './drawing-canvas.component.html'
@@ -44,7 +44,7 @@ export class DrawingCanvasComponent extends BaseCanvasComponent implements After
     this.context.beginPath();
     this.context.moveTo(vector.p0.x, vector.p0.y);
     this.context.lineTo(vector.p1.x, vector.p1.y);
-    this.context.strokeStyle = vector.c ? vector.c : this.maps.current.color;
+    this.context.strokeStyle = vector.c ? vector.c : "#ffffff";
     this.context.lineWidth = vector.w;
     this.context.stroke();
     this.context.closePath();
@@ -53,7 +53,7 @@ export class DrawingCanvasComponent extends BaseCanvasComponent implements After
     if (!emit) { return; }
 
     this.maps.emit('drawing', vector);
-    this.maps.current.state.vectors.push(vector);
+    this.maps.server.vectors.push(vector);
   }
 
   onMouseDown(p) {
@@ -70,8 +70,9 @@ export class DrawingCanvasComponent extends BaseCanvasComponent implements After
     let vector = {
       p0: this.current,
       p1: p,
-      w: 2 / this.maps.current.state.viewport.scale,
-      c: this.maps.penColor
+      w: 2 / this.maps.localCameras[this.group].scale,
+      c: this.maps.penColor,
+      id: uuidv4().substring(0, 8)
     } 
     return vector;
   }
@@ -133,9 +134,9 @@ export class DrawingCanvasComponent extends BaseCanvasComponent implements After
   }
 
   erase(v: Vector, emit: boolean = false) {
-    this.maps.current.state.vectors = this.maps.current.state.vectors.filter(
+    this.maps.server.vectors = this.maps.server.vectors.filter(
       (vector) => {
-        return this.vectorDistance(v, vector) > 10 / this.maps.current.state.viewport.scale;
+        return this.vectorDistance(v, vector) > 10 / this.maps.server.camera.scale;
       }
     )
     this.redraw();
@@ -155,7 +156,7 @@ export class DrawingCanvasComponent extends BaseCanvasComponent implements After
   }
 
   drawVectors() {
-    this.maps.current.state.vectors.forEach(
+    this.maps.server.vectors.forEach(
       (vector) => {
         this.drawLine(vector);
       }

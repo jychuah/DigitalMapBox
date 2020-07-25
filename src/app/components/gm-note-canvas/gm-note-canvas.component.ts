@@ -38,7 +38,7 @@ export class GmNoteCanvasComponent extends DrawingCanvasComponent {
     if (!emit) { return; }
 
     this.maps.emit('gmdrawing', vector);
-    this.maps.current.state.gmnotes.push(vector);
+    //this.maps.current.state.gmnotes.push(vector);
   }
 
   onMouseDown(p) {
@@ -61,6 +61,7 @@ export class GmNoteCanvasComponent extends DrawingCanvasComponent {
   }
 
   erase(v: Vector, emit: boolean = false) {
+    /*
     this.maps.current.state.gmnotes = this.maps.current.state.gmnotes.filter(
       (vector) => {
         return this.vectorDistance(v, vector) > 10 / this.maps.current.state.viewport.scale;
@@ -71,15 +72,18 @@ export class GmNoteCanvasComponent extends DrawingCanvasComponent {
     if (!emit) { return; }
 
     this.maps.emit('gmerasing', v);
+    */
   }
 
 
   drawVectors() {
+    /*
     this.maps.current.state.gmnotes.forEach(
       (vector) => {
         this.drawLine(vector);
       }
     )
+    */
   }
 
 }

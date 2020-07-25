@@ -16,7 +16,9 @@ export class FogCanvasComponent extends BaseCanvasComponent {
       y: 0
     },
     w: 0,
-    h: 0
+    h: 0,
+    id: "",
+    revealed: true
   }
   drawing: boolean = false;
 
@@ -55,6 +57,7 @@ export class FogCanvasComponent extends BaseCanvasComponent {
   }
 
   onMouseUp(p: Point) {
+    /*
     if (!this.drawing) { return; }
     this.generateLocalRect(p);
     if (this.localRect.w < 0){
@@ -65,7 +68,7 @@ export class FogCanvasComponent extends BaseCanvasComponent {
       this.localRect.p.y += this.localRect.h;
       this.localRect.h = -this.localRect.h;
     }
-    let remaining = this.maps.current.state.regions.filter(
+    let remaining = this.maps.server.regions.filter(
       (region) => {
         let contained = this.localRect.p.x < region.p.x &&
           this.localRect.p.x + this.localRect.w > region.p.x + region.w;
@@ -79,6 +82,7 @@ export class FogCanvasComponent extends BaseCanvasComponent {
     this.redraw();
     this.drawing = false;
     this.maps.emit("reveal", this.maps.current.state.regions);
+    */
   }
 
   clearRegion(r: Region) {
@@ -86,6 +90,7 @@ export class FogCanvasComponent extends BaseCanvasComponent {
   }
 
   redraw() {
+    /*
     if (!this.visible) return;
     super.redraw();
     if (!this.maps.imageLoaded() || !this.maps.image.complete ) { return; }
@@ -108,5 +113,6 @@ export class FogCanvasComponent extends BaseCanvasComponent {
         this.clearRegion(region);
       }
     )
+    */
   }
 }

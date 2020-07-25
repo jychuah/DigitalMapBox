@@ -8,13 +8,13 @@
         <ion-icon name="open"></ion-icon>
     </ion-fab-button>
     <ion-fab-button
-        [color]="isViewport('player') ? 'primary' : 'light'"
-        (click)="setViewport('player')">
+        [color]="isCamera('player') ? 'primary' : 'light'"
+        (click)="setCamera('player')">
         <ion-icon name="logo-buffer"></ion-icon>
     </ion-fab-button>
     <ion-fab-button
-        [color]="isViewport('gm') ? 'primary' : 'light'"
-        (click)="setViewport('gm')">
+        [color]="isCamera('gm') ? 'primary' : 'light'"
+        (click)="setCamera('gm')">
         <ion-icon name="speedometer"></ion-icon>
     </ion-fab-button>
     <ion-range 

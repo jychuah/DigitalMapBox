@@ -2,7 +2,7 @@ import { Component, AfterViewInit, ElementRef, OnInit } from '@angular/core';
 import { BaseCanvasComponent } from '../base-canvas/base-canvas.component';
 import { Events, Platform } from '@ionic/angular';
 import { MapSocketService } from '../../map-socket.service';
-import { ViewPort, Point } from '../../types';
+import { ViewPort, Camera, Point } from '../../types';
 import { DomSanitizer } from '@angular/platform-browser';
 
 @Component({
@@ -18,7 +18,7 @@ export class MiniMapCanvasComponent extends BaseCanvasComponent implements After
   scale: number = 1.0;
   rangeSlider: number = 50;
   viewscale: number = 1.0;
-  localView: ViewPort = {
+  draggableCamera: Camera = {
     center: {
       x: 0,
       y: 0
@@ -34,8 +34,12 @@ export class MiniMapCanvasComponent extends BaseCanvasComponent implements After
   sliderScale: number = (this.maxv - this.minv) / (this.maxp - this.minp);
   previousCall: number = null;
   localViewportMetrics: any = null;
+  localViewport: ViewPort = {
+    width: 0,
+    height: 0
+  }
 
-  currentViewport: string = "gm";
+  currentCamera: string = "gm";
 
   constructor(public platform: Platform, 
               public events: Events, 
@@ -60,8 +64,11 @@ export class MiniMapCanvasComponent extends BaseCanvasComponent implements After
   
 
   ngOnInit() {
-    this.localView = this.maps.current.state.viewport;
-    this.rangeSlider = this.getRangeSlider(this.maps.current.state.viewport.scale);
+    this.localViewport = {
+      width: this.platform.width(),
+      height: this.platform.height()
+    }
+    this.rangeSlider = this.getRangeSlider(this.maps.localCameras[this.currentCamera].scale);
   }
 
   ngAfterViewInit() {
@@ -102,17 +109,14 @@ export class MiniMapCanvasComponent extends BaseCanvasComponent implements After
   }
 
   refreshFromEvent() {
-    this.localView = this.maps.current.state.viewport;
-    this.rangeSlider = this.getRangeSlider(this.maps.current.state.viewport.scale);
+    // Update the range slider from an outside event source
+    this.rangeSlider = this.getRangeSlider(this.maps.localCameras[this.currentCamera].scale);
     this.redraw();    
   }
 
   scaleChange($event) {
     let result = Math.exp(this.minv + this.sliderScale * (this.rangeSlider - this.minp));
-    this.maps.current.state.viewport.scale = result;
-    if (this.maps.viewLocked) {
-      this.maps.emit("viewport", this.maps.current.state.viewport);
-    }
+    this.maps.localCameras[this.currentCamera].scale = result;
     this.events.publish("viewport");  
     this.redraw();
   }
@@ -146,7 +150,9 @@ export class MiniMapCanvasComponent extends BaseCanvasComponent implements After
 
   onMouseDown(e) {
     let click = this.getMinimapPoint(e);
-    let localRect = this.calculateLocalRect(this.maps.current.state.viewport);
+    let localRect = this.calculateLocalRect(
+      this.localViewport, this.maps.localCameras[this.currentCamera]
+    );
     if (click.x > localRect.x &&
         click.x < localRect.x + localRect.width &&
         click.y > localRect.y &&
@@ -157,10 +163,7 @@ export class MiniMapCanvasComponent extends BaseCanvasComponent implements After
 
   onMouseUp(e) {
     if (this.dragging) {
-      this.maps.current.state.viewport = this.localView;
-      if (this.maps.viewLocked) {
-        this.maps.emit("viewport", this.maps.current.state.viewport);
-      }
+      this.maps.localCameras[this.currentCamera] = this.draggableCamera;
       this.events.publish("viewport");
     }
     this.dragging = false;
@@ -169,11 +172,11 @@ export class MiniMapCanvasComponent extends BaseCanvasComponent implements After
 
   onMouseMove(e) {
     if (!this.dragging) { return; }
-    this.localView.center = this.getLocalPoint(e);
+    this.draggableCamera.center = this.getLocalPoint(e);
     this.redraw();
   }
 
-  calculateLocalRect(viewport: ViewPort) {
+  calculateLocalRect(viewport: ViewPort, camera: Camera) {
     let localRect = { 
       x: 0,
       y: 0,
@@ -182,15 +185,15 @@ export class MiniMapCanvasComponent extends BaseCanvasComponent implements After
     };
     let width = viewport.width || this.platform.width();
     let height = viewport.height || this.platform.height();
-    localRect.x = (-width / 2 / viewport.scale + viewport.center.x) * this.scale + this.dx;
-    localRect.y = (-height / 2 / viewport.scale + viewport.center.y) * this.scale + this.dy;
-    localRect.width = width * this.scale / viewport.scale;
-    localRect.height = height * this.scale / viewport.scale;
+    localRect.x = (-width / 2 / camera.scale + camera.center.x) * this.scale + this.dx;
+    localRect.y = (-height / 2 / camera.scale + camera.center.y) * this.scale + this.dy;
+    localRect.width = width * this.scale / camera.scale;
+    localRect.height = height * this.scale / camera.scale;
     return localRect;
   }
 
-  drawViewPort(viewport: ViewPort, color: string, fill: string = null) {
-    let rect = this.calculateLocalRect(viewport);
+  drawViewPort(viewport: ViewPort, camera: Camera, color: string, fill: string = null) {
+    let rect = this.calculateLocalRect(viewport, camera);
     this.context.strokeStyle = color;
     this.context.lineWidth = 3;
     this.context.setTransform(1, 0, 0, 1, 0, 0);
@@ -209,32 +212,38 @@ export class MiniMapCanvasComponent extends BaseCanvasComponent implements After
     this.context.fillStyle = "#00000000";
     this.context.clearRect(0, 0, this.canvas.width, this.canvas.height);
     this.context.setTransform(this.scale, 0, 0, this.scale, this.dx, this.dy);
-    this.drawViewPort(this.maps.server.localViewport, "#ffffff88", "#ffffff44");
+    // Draw server viewport and camera
+    this.drawViewPort(this.maps.server.viewport, this.maps.server.camera, "#ffffff88", "#ffffff44");
+
     if (this.dragging) {
-      this.drawViewPort(this.localView, this.maps.current.color);
+      this.drawViewPort(this.localViewport, this.draggableCamera, "#ffffff");
       return;
     }
-    this.drawViewPort(this.maps.current.state.viewport, this.maps.current.color);
-    if (this.maps.server.currentView == -1) {
-      this.maps.server.views.forEach(
-        (view) => {
-          this.drawViewPort(view.state.viewport, view.color + "AA");
-        }
-      )
-    }
+    // Draw GM viewport and camera
+    this.drawViewPort(this.localViewport, this.maps.localCameras.gm, "#ffffff", "#ffffffaa");
   }
 
-  isViewport(viewport: string) {
-    return this.currentViewport == viewport;
+  isCamera(camera: string) {
+    return this.currentCamera == camera;
   }
 
-  setViewport(viewport: string) {
-    this.currentViewport = viewport;
+  setCamera(camera: string) {
+    this.currentCamera = camera;
+  }
+
+  snap() {
+
+  }
+
+  send() {
+
   }
 
   lockToggle() {
+    /*
     this.maps.current.state.viewport.center = this.maps.server.localViewport.center;
     this.maps.current.state.viewport.scale = this.maps.server.localViewport.scale;
     this.events.publish("redraw");
+    */
   }
 }

@@ -3,7 +3,6 @@ import { ActivatedRoute } from '@angular/router';
 import { MapSocketService } from '../map-socket.service';
 import { Platform, ModalController } from '@ionic/angular';
 import { FileModalPage } from '../file-modal/file-modal.page';
-import { ViewsModalPage } from '../views-modal/views-modal.page';
 import { ToastController, Events, AlertController } from '@ionic/angular';
 import { faEraser } from '@fortawesome/free-solid-svg-icons';
 @Component({
@@ -78,21 +77,6 @@ export class HomePage implements AfterViewInit {
     });
     await modal.present();
     await modal.onWillDismiss();
-  }
-
-  async presentViewsModal() {
-    const modal = await this.modalController.create({
-      component: ViewsModalPage,
-    });
-    await modal.present();
-    await modal.onWillDismiss();
-  }
-
-  currentViewInfo() {
-    if (this.maps.server.currentView == -1) {
-      return "(Global)"
-    }
-    return this.maps.current.name;
   }
 
   saveMetadata() {

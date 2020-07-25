@@ -10,7 +10,6 @@ import { AppComponent } from './app.component';
 import { AppRoutingModule } from './app-routing.module';
 import { MapSocketService } from './map-socket.service';
 import { FileModalPageModule } from './file-modal/file-modal.module';
-import { ViewsModalPageModule } from './views-modal/views-modal.module';
 
 @NgModule({
   declarations: [
@@ -23,7 +22,6 @@ import { ViewsModalPageModule } from './views-modal/views-modal.module';
     IonicModule.forRoot(), 
     AppRoutingModule,
     FileModalPageModule,
-    ViewsModalPageModule
   ],
   providers: [
     StatusBar,

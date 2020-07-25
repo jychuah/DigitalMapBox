@@ -105,6 +105,7 @@ export class MapSocketService {
         console.log("Loading", this.image.src);
       }
       if (data.event == "camera") {
+        this.server.camera = data.data;
         this.localCameras.player = data.data;
       }
       if (data.event == "vector") {
