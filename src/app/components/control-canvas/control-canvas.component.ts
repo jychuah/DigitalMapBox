@@ -5,19 +5,22 @@ import { MapSocketService } from '../../map-socket.service';
 import { BaseCanvasComponent } from '../base-canvas/base-canvas.component';
 import { Events } from '@ionic/angular';
 import { Vector, Point } from '../../types';
+import { faEraser, faUserSecret } from '@fortawesome/free-solid-svg-icons';
 import * as uuidv4 from 'uuid/v4';
 @Component({
-  selector: 'drawing-canvas',
-  templateUrl: './drawing-canvas.component.html'
+  selector: 'control-canvas',
+  templateUrl: './control-canvas.component.html',
+  styleUrls: ['./control-canvas.component.scss']
 })
-export class DrawingCanvasComponent extends BaseCanvasComponent implements AfterViewInit {
-  drawing: boolean = false;
-  erasing: boolean = false;
+export class ControlCanvasComponent extends BaseCanvasComponent implements AfterViewInit {
+  public faEraser: any = faEraser;
   socketEvents: Observable<any> = null;
   current: Point = {
     x: 0,
     y: 0
   }
+  tool: string = "";
+  active: boolean = false;
 
   constructor(public platform: Platform,
               public events: Events,
@@ -29,38 +32,17 @@ export class DrawingCanvasComponent extends BaseCanvasComponent implements After
     super.ngAfterViewInit();
   }
 
-  connect() {
-    this.events.subscribe("drawing", (data) => {
-      this.onDrawingEvent(data);
-    });
-    this.events.subscribe("erasing", (data) => {
-      this.onErasingEvent(data);
-    });
+  isTool(tool: string) {
+    return this.tool === tool;
   }
 
-  drawLine(vector: Vector, emit: boolean = false){
-    this.context.beginPath();
-    this.context.moveTo(vector.p0.x, vector.p0.y);
-    this.context.lineTo(vector.p1.x, vector.p1.y);
-    this.context.strokeStyle = vector.c ? vector.c : "#ffffff";
-    this.context.lineWidth = vector.w;
-    this.context.stroke();
-    this.context.closePath();
-
-
-    if (!emit) { return; }
-
-    this.maps.emit('drawing', vector);
-    this.maps.server.vectors.push(vector);
+  setTool(tool: string) {
+    this.tool = tool;
   }
 
   onMouseDown(p) {
-    if (this.maps.mouseEvent === 'draw') {
-      this.drawing = true;
-    }
-    if (this.maps.mouseEvent === 'erase') {
-      this.erasing = true;
-    }
+    if (this.tool === "") return;
+    this.active = true;
     this.current = p;
   }
 
@@ -111,22 +93,25 @@ export class DrawingCanvasComponent extends BaseCanvasComponent implements After
     return Math.sqrt(dx * dx + dy * dy);
   }
 
+  pushVector(p) {
+    let vector: Vector = this.generateVector(p);
+    this.maps.server
+    this.maps.publishVector(vector);
+    this.events.publish("drawing", vector);
+  }
+
   onMouseUp(p) {
     if (!this.visible) return;
-    if (this.drawing) {
-      this.drawLine(this.generateVector(p), true);
+    if (this.tool === "draw" && this.active) {
+      this.pushVector(p);
     }
-    this.drawing = false;
-    this.erasing = false;
+    this.active = false;
   }
 
   onMouseMove(p) {
     if (!this.visible) return;
-    if (this.drawing) {
-      this.drawLine(this.generateVector(p), true);
-    }
-    if (this.erasing) {
-      this.erase(this.generateVector(p), true);
+    if (this.tool === "draw" && this.active) {
+      this.pushVector(p);
     }
     this.current = p;
   }
@@ -144,27 +129,8 @@ export class DrawingCanvasComponent extends BaseCanvasComponent implements After
     this.maps.emit('erasing', v);
   }
 
-
-  onDrawingEvent(data) {
-    this.drawLine(data);
-  }
-
-  onErasingEvent(data) {
-    this.erase(data);
-  }
-
-  drawVectors() {
-    console.log(this.maps.server.vectors);
-    this.maps.server.vectors.forEach(
-      (vector) => {
-        this.drawLine(vector);
-      }
-    )
-  }
-
   redraw() {
     if (!this.visible) return;
     super.redraw();
-    this.drawVectors();
   }
 }

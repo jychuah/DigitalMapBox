@@ -78,7 +78,7 @@ export class MapSocketService {
   }
 
   publishVector(vector: Vector) {
-    this.emit("vector");
+    this.emit("drawing", vector);
   }
 
   publishCamera(camera: string) {
@@ -92,6 +92,14 @@ export class MapSocketService {
     this.events.publish("redraw");
   }
 
+  drawingHandler(vector: Vector) {
+    if (this.server.vectors.some(v => v.id === vector.id)) {
+      return;
+    }
+    this.server.vectors.push(vector);
+    this.events.publish("drawing", vector);
+  }
+
   connect() {
     console.log("Connecting to", this.url);
     this.socket = io(this.url);
@@ -99,8 +107,8 @@ export class MapSocketService {
       if (data.event == "sync") {
         this.server = data.data;
         this.image.src = this.url + this.server.path;
-        this.localCameras.player = this.server.camera;
-        this.localCameras.gm = this.server.camera;
+        this.localCameras.player = { ...this.server.camera };
+        this.localCameras.gm = { ...this.server.camera };
         console.log("Sync state", this.server);
         console.log("Loading", this.image.src);
       }
@@ -109,8 +117,8 @@ export class MapSocketService {
         this.localCameras.player = data.data;
         this.events.publish("redraw");
       }
-      if (data.event == "vector") {
-        this.server.vectors.push(data.data);
+      if (data.event == "drawing") {
+        this.drawingHandler(data.data);
       }
       if (data.event == "region") {
         this.regionHandler(data.data);
@@ -118,11 +126,11 @@ export class MapSocketService {
       if (data.event == "erasing") {
         this.erasingHandler(data.data);
       }
-      this.events.publish(data.event, data.data);
     });
   }
 
   emit(event: string, data: any = "") {
+    console.log("emitting", data);
     this.socket.emit(event, data);
   }
 }

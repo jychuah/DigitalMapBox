@@ -1,15 +1,12 @@
 <div id="canvas-group-player" [class]="canvasGroupClass('player')">
   <map-canvas group="player" id="playermap"></map-canvas>
-  <!--
-  <drawing-canvas [groups]="['player']""></drawing-canvas>
-  <fog-canvas [groups]="['player']"></fog-canvas>
-  -->
+  <drawing-canvas group="player"></drawing-canvas>
+  <fog-canvas group="player"></fog-canvas>
 </div>
 <div id="canvas-group-gm" [class]="canvasGroupClass('gm')">
   <map-canvas group="gm" id="gmmap"></map-canvas>
-  <!--
-  <gm-note-canvas [groups]=['gm']></gm-note-canvas>
-  -->
+  <drawing-canvas group="gm"></drawing-canvas>
+  <control-canvas group="gm"></control-canvas>
 </div>
 <div id="canvas-group-minimap" [class]="canvasGroupClass('minimap')">
   <mini-map-canvas group="minimap" id="minimap"></mini-map-canvas>

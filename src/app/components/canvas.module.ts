@@ -11,6 +11,7 @@ import { FormsModule } from '@angular/forms';
 import { FogCanvasComponent } from './fog-canvas/fog-canvas.component';
 import { GmNoteCanvasComponent } from './gm-note-canvas/gm-note-canvas.component';
 import { ControlComponent } from './control/control.component';
+import { ControlCanvasComponent } from './control-canvas/control-canvas.component';
 import { FontAwesomeModule } from '@fortawesome/angular-fontawesome';
 
 @NgModule({
@@ -31,7 +32,8 @@ import { FontAwesomeModule } from '@fortawesome/angular-fontawesome';
     ColorSelectComponent,
     FogCanvasComponent,
     GmNoteCanvasComponent,
-    ControlComponent
+    ControlComponent,
+    ControlCanvasComponent
   ],
   exports: [
     DrawingCanvasComponent,
@@ -42,7 +44,8 @@ import { FontAwesomeModule } from '@fortawesome/angular-fontawesome';
     ColorSelectComponent,
     FogCanvasComponent,
     GmNoteCanvasComponent,
-    ControlComponent
+    ControlComponent,
+    ControlCanvasComponent
   ]
 })
 export class CanvasModule {}

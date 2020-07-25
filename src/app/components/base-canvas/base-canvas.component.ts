@@ -1,7 +1,7 @@
 import { Component, AfterViewInit, ViewChild, ElementRef, Input } from '@angular/core';
 import { Platform, Events } from '@ionic/angular';
 import { MapSocketService } from '../../map-socket.service';
-import { Point } from '../../types';
+import { Point, Camera } from '../../types';
 
 @Component({
   selector: 'base-canvas',
@@ -23,16 +23,16 @@ export class BaseCanvasComponent implements AfterViewInit {
 
   ngAfterViewInit() {
     this.initCanvas();
-    this.canvas.addEventListener('mousedown', (e) => this.onMouseDown(e), false);
-    this.canvas.addEventListener('mouseup', (e) => this.onMouseUp(e), false);
-    this.canvas.addEventListener('mouseout', (e) => this.onMouseUp(e), false);
-    this.canvas.addEventListener('mousemove', (e) => this.throttleMouseMove(e), false);
+    this.canvas.addEventListener('mousedown', (e) => this.onMouseDown(this.getLocalPoint(e)), false);
+    this.canvas.addEventListener('mouseup', (e) => this.onMouseUp(this.getLocalPoint(e)), false);
+    this.canvas.addEventListener('mouseout', (e) => this.onMouseUp(this.getLocalPoint(e)), false);
+    this.canvas.addEventListener('mousemove', (e) => this.throttleMouseMove(this.getLocalPoint(e)), false);
     
     //Touch support for mobile devices
-    this.canvas.addEventListener('touchstart', (e) => this.onMouseDown(e), false);
-    this.canvas.addEventListener('touchend', (e) => this.onMouseUp(e), false);
-    this.canvas.addEventListener('touchcancel', (e) => this.onMouseUp(e), false);
-    this.canvas.addEventListener('touchmove', (e) => this.throttleMouseMove(e), false);
+    this.canvas.addEventListener('touchstart', (e) => this.onMouseDown(this.getLocalPoint(e)), false);
+    this.canvas.addEventListener('touchend', (e) => this.onMouseUp(this.getLocalPoint(e)), false);
+    this.canvas.addEventListener('touchcancel', (e) => this.onMouseUp(this.getLocalPoint(e)), false);
+    this.canvas.addEventListener('touchmove', (e) => this.throttleMouseMove(this.getLocalPoint(e)), false);
     this.previousCall = new Date().getTime();
   }
 
@@ -71,7 +71,7 @@ export class BaseCanvasComponent implements AfterViewInit {
   }
 
   getLocalPoint(e) : Point {
-    let p = {
+    let p: Point = {
       x: 0,
       y: 0
     }
@@ -87,11 +87,11 @@ export class BaseCanvasComponent implements AfterViewInit {
     }
     p.x -= this.platform.width() / 2;
     p.y -= this.platform.height() / 2;
-    let camera = this.maps.localCameras[this.group];
+    let camera: Camera = this.maps.localCameras[this.group];
     p.x /= camera.scale;
     p.y /= camera.scale;
-    p.x += camera.x;
-    p.y += camera.y;
+    p.x += camera.center.x;
+    p.y += camera.center.y;
     return p;
   }
 

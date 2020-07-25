@@ -72,7 +72,7 @@ export class MiniMapCanvasComponent extends BaseCanvasComponent implements After
   }
 
   ngAfterViewInit() {
-    super.ngAfterViewInit();
+    this.initCanvas();
     this.canvas.addEventListener('mousedown', (e) => this.onMouseDown(e), false);
     this.canvas.addEventListener('mouseup', (e) => this.onMouseUp(e), false);
     this.canvas.addEventListener('mouseout', (e) => this.onMouseUp(e), false);

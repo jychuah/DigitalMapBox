@@ -169,7 +169,8 @@ function regionHandler(socket, region) {
   broadcast(socket, "region", region);
 }
 
-function vectorHandler(socket, vector) {
+function drawHandler(socket, vector) {
+  console.log("vector", vector);
   server.vectors.push(vector);
   broadcast(socket, "drawing", vector);
 }
@@ -266,7 +267,7 @@ function globalResetHandler(socket) {
 }
 
 function onConnection(socket){
-  socket.on('vector', (vector) => vectorHandler(socket, vector));
+  socket.on('drawing', (vector) => drawHandler(socket, vector));
   socket.on('filelist', (path) => fileListHandler(socket, path));
   socket.on('imageload', (path) => imageLoadHandler(socket, path));
   socket.on('sync', () => syncHandler(socket));

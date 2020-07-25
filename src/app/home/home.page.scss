@@ -5,6 +5,13 @@ drawing-canvas {
     z-index: 5;
 }
 
+control-canvas {
+    position: absolute;
+    left: 0;
+    top: 0;
+    z-index: 10;
+}
+
 map-canvas {
     position: absolute;
     left: 0;
