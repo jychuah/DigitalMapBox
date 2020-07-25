@@ -81,15 +81,19 @@ export class MapSocketService {
     this.emit("drawing", vector);
   }
 
+  publishErase(ids: string[]) {
+    this.emit("erasing", ids);
+  }
+
   publishCamera(camera: string) {
     this.socket.emit("camera", this.localCameras[camera]);
   }
 
-  erasingHandler(erasedIDs) {
+  erasingHandler(erasedIDs: string[]) {
     this.server.vectors = this.server.vectors.filter(
-      (vector) => !erasedIDs.includes(vector)
+      (vector) => !erasedIDs.includes(vector.id)
     );
-    this.events.publish("redraw");
+    this.events.publish("erasing");
   }
 
   drawingHandler(vector: Vector) {

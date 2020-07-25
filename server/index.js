@@ -207,18 +207,7 @@ function pointDistance(p, v) {
   return Math.sqrt(dx * dx + dy * dy);
 }
 
-function vectorDistance(v1, v2) {
-  return Math.min(pointDistance(v1.p0, v2), pointDistance(v1.p1, v2));
-}
-
-function eraseHandler(socket, vector) {
-  let erased = server.vectors.reduce(
-    (results, vector) => {
-      if (vectorDistance(v, vector) < 10 / server.viewport.scale) {
-        results.push(vector.id);
-      }
-    }
-  )
+function eraseHandler(socket, erased) {
   broadcast(socket, "erasing", erased);
   server.vectors = server.vectors.filter(
     (vector) => !erased.includes(vector.id)
@@ -233,7 +222,6 @@ function syncHandler(socket) {
 function cameraHandler(socket, camera) {
   server.camera = camera;
   saveServerState();
-  console.log("Camera change", camera);
   broadcast(socket, "camera", camera);
 }
 
@@ -273,7 +261,7 @@ function onConnection(socket){
   socket.on('sync', () => syncHandler(socket));
   socket.on('camera', (camera) => cameraHandler(socket, camera));
   socket.on('save', () => saveHandler(socket));
-  socket.on('erase', (vector) => eraseHandler(socket, vector));
+  socket.on('erasing', (vectors) => eraseHandler(socket, vectors));
   socket.on('region', (region) => regionHandler(socket, region));
   socket.on('shutdown', () => shutdownHandler(socket));
   socket.on('globalreset', () => globalResetHandler(socket));

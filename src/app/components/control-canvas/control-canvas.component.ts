@@ -100,33 +100,46 @@ export class ControlCanvasComponent extends BaseCanvasComponent implements After
     this.events.publish("drawing", vector);
   }
 
-  onMouseUp(p) {
-    if (!this.visible) return;
+  mouseEventCallback(p) {
     if (this.tool === "draw" && this.active) {
       this.pushVector(p);
     }
+    if (this.tool === "erase" && this.active) {
+      this.erase(this.generateVector(p));
+    }
+  }
+
+  onMouseUp(p) {
+    if (!this.visible) return;
+    this.mouseEventCallback(p);
     this.active = false;
   }
 
   onMouseMove(p) {
     if (!this.visible) return;
-    if (this.tool === "draw" && this.active) {
-      this.pushVector(p);
-    }
+    this.mouseEventCallback(p);
     this.current = p;
   }
 
-  erase(v: Vector, emit: boolean = false) {
-    this.maps.server.vectors = this.maps.server.vectors.filter(
+  erase(v: Vector) {
+    let keep: Vector[] = [];
+    let remove: Vector[] = [];
+    this.maps.server.vectors.forEach(
       (vector) => {
-        return this.vectorDistance(v, vector) > 10 / this.maps.server.camera.scale;
+        if (this.vectorDistance(v, vector) < 10 / this.maps.localCameras[this.group].scale) {
+          remove.push(vector);
+        } else {
+          keep.push(vector);
+        }
       }
     )
-    this.redraw();
-
-    if (!emit) { return; }
-
-    this.maps.emit('erasing', v);
+    this.maps.server.vectors = keep;
+    if (remove.length == 0) return;
+    let erasedIDs: string[] = remove.map(
+      (vector) => vector.id
+    )
+    this.maps.publishErase(erasedIDs);
+    this.events.publish("erasing");
   }
 
   redraw() {
