@@ -4,7 +4,7 @@ import { Observable } from 'rxjs';
 import { MapSocketService } from '../../map-socket.service';
 import { BaseCanvasComponent } from '../base-canvas/base-canvas.component';
 import { Events } from '@ionic/angular';
-import { Vector, Point } from '../../types';
+import { Vector, Point, Region } from '../../types';
 import { faEraser, faUserSecret } from '@fortawesome/free-solid-svg-icons';
 import * as uuidv4 from 'uuid/v4';
 @Component({
@@ -21,6 +21,8 @@ export class ControlCanvasComponent extends BaseCanvasComponent implements After
   }
   tool: string = "";
   active: boolean = false;
+  currentRegion: Region = null;
+  previousDim: Point = null;
 
   constructor(public platform: Platform,
               public events: Events,
@@ -44,6 +46,15 @@ export class ControlCanvasComponent extends BaseCanvasComponent implements After
     if (this.tool === "") return;
     this.active = true;
     this.current = p;
+    if (this.tool === "region") {
+      this.currentRegion = {
+        p: this.current,
+        w: 0,
+        h: 0,
+        id: uuidv4().substring(0, 8),
+        revealed: false
+      }
+    }
   }
 
   generateVector(p: Point) : Vector {
@@ -107,11 +118,32 @@ export class ControlCanvasComponent extends BaseCanvasComponent implements After
     if (this.tool === "erase" && this.active) {
       this.erase(this.generateVector(p));
     }
+    if (this.tool === "region" && this.active) {
+      this.previousDim = {
+        x: this.currentRegion.w,
+        y: this.currentRegion.h
+      }
+      this.currentRegion.w = p.x - this.currentRegion.p.x;
+      this.currentRegion.h = p.y - this.currentRegion.p.y;
+      this.redraw();
+    }
+  }
+
+  pushCurrentRegion() {
+    this.maps.server.regions.push(this.currentRegion);
+    this.events.publish("region", this.currentRegion);
+    this.context.clearRect(
+      this.currentRegion.p.x - 3, this.currentRegion.p.y - 3,
+      this.currentRegion.w + 6, this.currentRegion.h + 6);
+    this.currentRegion = null;
   }
 
   onMouseUp(p) {
     if (!this.visible) return;
     this.mouseEventCallback(p);
+    if (this.tool === "region" && this.active) {
+      this.pushCurrentRegion();
+    }
     this.active = false;
   }
 
@@ -141,9 +173,44 @@ export class ControlCanvasComponent extends BaseCanvasComponent implements After
     this.maps.publishErase(erasedIDs);
     this.events.publish("erasing");
   }
+  
+  clearPreviousRegion() {
+    if (this.currentRegion && this.previousDim) {
+      this.context.clearRect(
+        this.currentRegion.p.x, 
+        this.currentRegion.p.y,
+        this.previousDim.x,
+        this.previousDim.y);
+    }
+  }
+
+  drawCurrentRegion() {
+    if (!this.currentRegion) return;
+    let color = "#ffffff";
+    let fill = "#ffffff88";
+    this.context.strokeStyle = color;
+    this.context.lineWidth = 3;
+    this.context.strokeRect(
+      this.currentRegion.p.x, 
+      this.currentRegion.p.y, 
+      this.currentRegion.w, 
+      this.currentRegion.h);
+    if (fill) {
+      let saveFill = this.context.fillStyle;
+      this.context.fillStyle = fill;
+      this.context.fillRect(
+        this.currentRegion.p.x, 
+        this.currentRegion.p.y, 
+        this.currentRegion.w, 
+        this.currentRegion.h);
+      this.context.fillStyle = saveFill;
+    }
+  }
 
   redraw() {
     if (!this.visible) return;
     super.redraw();
+    this.clearPreviousRegion();
+    this.drawCurrentRegion();
   }
 }

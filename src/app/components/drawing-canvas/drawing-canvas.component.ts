@@ -54,7 +54,6 @@ export class DrawingCanvasComponent extends BaseCanvasComponent implements After
 
 
   drawVectors() {
-    console.log(this.maps.server.vectors);
     this.maps.server.vectors.forEach(
       (vector) => {
         this.drawLine(vector);
