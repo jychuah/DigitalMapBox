@@ -2,7 +2,7 @@ import { Component, AfterViewInit, ViewChild, ElementRef, Input } from '@angular
 import { Platform } from '@ionic/angular';
 import { MapSocketService } from '../../map-socket.service';
 import { BaseCanvasComponent } from '../base-canvas/base-canvas.component';
-import { Events } from '@ionic/angular';
+import { Events, AlertController } from '@ionic/angular';
 import { Vector, Point } from '../../types';
 import { faEraser } from '@fortawesome/free-solid-svg-icons';
 import * as uuidv4 from 'uuid/v4';
@@ -25,7 +25,8 @@ export class DrawingCanvasComponent extends BaseCanvasComponent implements After
 
   constructor(public platform: Platform,
               public events: Events,
-              public maps: MapSocketService) {
+              public maps: MapSocketService,
+              public alertController: AlertController) {
     super(platform, events, maps);
   }
 
@@ -173,6 +174,28 @@ export class DrawingCanvasComponent extends BaseCanvasComponent implements After
         this.drawLine(vector);
       }
     )
+  }
+
+  async resetClickHandler() {
+    const alert = await this.alertController.create({
+      header: "Reset",
+      message: "Are you sure you wish to erase all drawings?",
+      buttons: [
+        {
+          text: 'Cancel',
+          role: 'cancel',
+          cssClass: 'light'
+        },
+        {
+          text: 'Erase',
+          cssClass: 'danger',
+          handler: () => {
+            this.maps.publishResetVectors();
+          }
+        }
+      ]
+    });
+    await alert.present();
   }
 
   redraw() {

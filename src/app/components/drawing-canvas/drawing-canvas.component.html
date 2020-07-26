@@ -2,15 +2,18 @@
 <div class="controls" *ngIf="toolbar">
   <color-select [color]="maps.penColor" (select)="penColor($event)"></color-select>
   <ion-fab-button
-    class="layer-select"
     attr.color="{{ isTool('draw') ? 'primary' : 'light' }}"
     (click)="setTool('draw')">
     <ion-icon name="brush"></ion-icon>
   </ion-fab-button>
   <ion-fab-button
-    class="layer-select"
     attr.color="{{ isTool('erase') ? 'primary' : 'light' }}"
     (click)="setTool('erase')">
     <fa-icon [icon]="faEraser" color="light"></fa-icon>
+  </ion-fab-button>
+  <ion-fab-button
+    color="danger"
+    (click)="resetClickHandler()">
+    <ion-icon name="refresh-circle"></ion-icon>
   </ion-fab-button>
 </div>

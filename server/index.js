@@ -191,6 +191,16 @@ function eraseHandler(socket, erased) {
   )
 }
 
+function resetVectorsHandler(socket) {
+  broadcast(socket, "resetvectors");
+  server.vectors = [ ];
+}
+
+function resetRegionsHandler(socket) {
+  broadcast(socket, "resetregions");
+  server.regions = [ ];
+}
+
 function syncHandler(socket) {
   console.log("Sync", server);
   emit(socket, 'sync', server);
@@ -224,13 +234,6 @@ function shutdownHandler(socket) {
   broadcast(socket, "shutdown");
 }
 
-function globalResetHandler(socket) {
-  console.log("Reseting global view");
-  server.vectors = [ ];
-  server.regions = [ ];
-  broadcast(socket, "globalreset");
-}
-
 function onConnection(socket){
   socket.on('drawing', (vector) => drawHandler(socket, vector));
   socket.on('filelist', (path) => fileListHandler(socket, path));
@@ -243,6 +246,8 @@ function onConnection(socket){
   socket.on('region', (region) => regionHandler(socket, region));
   socket.on('shutdown', () => shutdownHandler(socket));
   socket.on('globalreset', () => globalResetHandler(socket));
+  socket.on('resetvectors', () => resetVectorsHandler(socket));
+  socket.on('resetregions', () => resetRegionsHandler(socket));
   syncHandler(socket);
 }
 

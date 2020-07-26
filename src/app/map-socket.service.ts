@@ -93,6 +93,18 @@ export class MapSocketService {
     this.socket.emit("camera", this.localCameras[camera]);
   }
 
+  publishResetVectors() {
+    this.socket.emit("resetvectors");
+    this.server.vectors = [ ];
+    this.events.publish("redraw");
+  }
+
+  publishResetRegions() {
+    this.socket.emit("resetregions");
+    this.server.regions = [ ];
+    this.events.publish("redraw");
+  }
+
   erasingHandler(erasedIDs: string[]) {
     this.server.vectors = this.server.vectors.filter(
       (vector) => !erasedIDs.includes(vector.id)
@@ -113,6 +125,16 @@ export class MapSocketService {
       (region) => region.id === id
     );
     this.server.regions.splice(index, 1);
+    this.events.publish("redraw");
+  }
+
+  resetVectorsHandler() {
+    this.server.vectors = [ ];
+    this.events.publish("redraw");
+  }
+
+  resetRegionsHandler() {
+    this.server.regions = [ ];
     this.events.publish("redraw");
   }
 
@@ -147,6 +169,12 @@ export class MapSocketService {
       }
       if (data.event === "eraseregion") {
         this.eraseRegionHandler(data.data);
+      }
+      if (data.event === "resetvectors") {
+        this.resetVectorsHandler();
+      }
+      if (data.event === "resetregions") {
+        this.resetRegionsHandler();
       }
     });
   }

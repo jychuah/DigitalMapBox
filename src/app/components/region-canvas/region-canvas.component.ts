@@ -1,5 +1,5 @@
 import { Component, Input } from '@angular/core';
-import { Platform, Events } from '@ionic/angular';
+import { Platform, Events, AlertController } from '@ionic/angular';
 import { FogCanvasComponent } from '../fog-canvas/fog-canvas.component';
 import { MapSocketService } from '../../map-socket.service';
 import { Region, Point } from '../../types';
@@ -28,7 +28,8 @@ export class RegionCanvasComponent extends FogCanvasComponent {
 
   constructor(public platform: Platform,
     public events: Events,
-    public maps: MapSocketService) { 
+    public maps: MapSocketService,
+    public alertController: AlertController) { 
     super(platform, events, maps);
     this.background = null;
   }
@@ -308,6 +309,28 @@ export class RegionCanvasComponent extends FogCanvasComponent {
       this.events.publish("redraw", this.currentRegion);
     }
     this.redraw();
+  }
+
+  async resetClickHandler() {
+    const alert = await this.alertController.create({
+      header: "Reset",
+      message: "Are you sure you wish to erase all regions?",
+      buttons: [
+        {
+          text: 'Cancel',
+          role: 'cancel',
+          cssClass: 'light'
+        },
+        {
+          text: 'Erase',
+          cssClass: 'danger',
+          handler: () => {
+            this.maps.publishResetRegions();
+          }
+        }
+      ]
+    });
+    await alert.present();
   }
 
   redraw() {
