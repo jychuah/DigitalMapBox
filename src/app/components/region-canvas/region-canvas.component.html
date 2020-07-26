@@ -1,1 +1,9 @@
 <canvas #canvas></canvas>
+<div class="controls" *ngIf="toolbar">
+  <ion-fab-button
+    class="layer-select"
+    attr.color="{{ isTool('region') ? 'primary' : 'light' }}"
+    (click)="setTool('region')">
+    <ion-icon name="crop"></ion-icon>
+  </ion-fab-button>
+</div>

@@ -12,8 +12,10 @@ import { faEraser } from '@fortawesome/free-solid-svg-icons';
 })
 export class HomePage implements AfterViewInit {
   public saving: boolean = false;
+  public ui: boolean = false;
 
   topLayer: string = "player";
+  activeTool: string = "";
 
   constructor(public maps: MapSocketService, private platform: Platform,
               private modalController: ModalController, private events: Events,
@@ -31,6 +33,14 @@ export class HomePage implements AfterViewInit {
       this.toastShutdown();
     });
     this.setTop("player");
+  }
+
+  setActiveTool(tool: string) {
+    this.activeTool = tool;
+  }
+
+  isActiveTool(tool: string) {
+    return this.activeTool === tool;
   }
 
   setTop(layer: string) {

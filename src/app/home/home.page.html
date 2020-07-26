@@ -5,83 +5,55 @@
 </div>
 <div id="canvas-group-gm" [class]="canvasGroupClass('gm')">
   <map-canvas group="gm" id="gmmap"></map-canvas>
-  <region-canvas group="gm"></region-canvas>
-  <drawing-canvas group="gm"></drawing-canvas>
-  <control-canvas group="gm"></control-canvas>
+  <region-canvas 
+    group="gm" 
+    [class]="isActiveTool('region') ? 'active-tool' : ''"
+    [toolbar]="isActiveTool('region')"></region-canvas>
+  <drawing-canvas 
+    group="gm" 
+    [class]="isActiveTool('draw') ? 'active-tool' : ''"
+    [toolbar]="isActiveTool('draw')"></drawing-canvas>
 </div>
 <div id="canvas-group-minimap" [class]="canvasGroupClass('minimap')">
   <mini-map-canvas group="minimap" id="minimap"></mini-map-canvas>
 </div>
-<control *ngIf="maps.ui"></control>
-<ion-fab vertical="bottom" horizontal="end" slot="fixed" class="vertical-ui">
+<ion-fab vertical="bottom" horizontal="end" slot="fixed" class="vertical-ui" *ngIf="!ui">
+  <ion-fab-button
+    color="light"
+    attr.data-desc="{{ filenameInfo() }}"
+    (click)="setTop('player'); setActiveTool(''); ui = true;">
+    <ion-icon name="logo-buffer"></ion-icon>
+  </ion-fab-button>
+</ion-fab>
+<ion-fab vertical="bottom" horizontal="end" slot="fixed" class="vertical-ui" *ngIf="ui">
   <ion-fab-button 
     color="light" 
-    attr.data-desc="{{ filenameInfo() }}"
-    (click)="presentFileModal()">
+    data-desc="Open"
+    (click)="presentFileModal(); setActiveTool('')">
     <ion-icon name="folder-open"></ion-icon>
   </ion-fab-button>
   <ion-fab-button
     [color]="isTop('minimap') ? 'primary' : 'light'"
     data-desc="Minimap"
-    (click)="setTop('minimap')">
+    (click)="setTop('minimap'); setActiveTool('')">
     <ion-icon name="move"></ion-icon>
   </ion-fab-button>
   <ion-fab-button
-    [color]="isTop('gm') ? 'primary' : 'light'"
-    data-desc="GM"
-    (click)="setTop('gm')">
-    <ion-icon name="speedometer"></ion-icon>
+    [color]="isActiveTool('region') ? 'primary' : 'light'"
+    data-desc="Regions"
+    (click)="setTop('gm'); setActiveTool('region')">
+    <ion-icon name="crop"></ion-icon>
   </ion-fab-button>
   <ion-fab-button
-    [color]="isTop('player') ? 'primary' : 'light'"
-    data-desc="Player View"
-    (click)="setTop('player')">
-    <ion-icon name="logo-buffer"></ion-icon>
-  </ion-fab-button>
-</ion-fab>
-<!--
-<ion-fab vertical="bottom" horizontal="end" slot="fixed" *ngIf="!maps.ui">
-  <ion-fab-button 
-    color="light" 
-    (click)="maps.toggleUI()" 
-    attr.data-desc="{{ connectionInfo() }}">
-    <ion-icon name="logo-buffer"></ion-icon>
-  </ion-fab-button>
-</ion-fab>
-<ion-fab class="ui-open" vertical="top" horizontal="start" slot="fixed" *ngIf="maps.ui">
-  <ion-fab-button color="danger" (click)="presentShutdownAlert()">
-    <ion-icon name="power"></ion-icon>
-  </ion-fab-button>
-  <ion-fab-button color="danger" (click)="presentFanAlert()">
-    <ion-icon name="snow"></ion-icon>
-  </ion-fab-button>
-</ion-fab>
-<ion-fab class="ui-open" vertical="bottom" horizontal="end" slot="fixed" *ngIf="maps.ui">
-  <ion-fab-button
-    color="light"
-    attr.data-desc="{{ currentViewInfo() }}"
-    *ngIf="maps.imageLoaded()"
-    (click)="presentViewsModal()">
-    <ion-icon name="aperture"></ion-icon>
+    [color]="isActiveTool('draw') ? 'primary' : 'light'"
+    data-desc="Draw"
+    (click)="setTop('gm'); setActiveTool('draw')">
+    <ion-icon name="brush"></ion-icon>
   </ion-fab-button>
   <ion-fab-button
-    color="light"
-    attr.data-desc="{{ saving ? 'Saving' : 'Save' }}"
-    *ngIf="maps.imageLoaded()"
-    (click)="saveMetadata()">
-    <ion-icon name="save"></ion-icon>
-  </ion-fab-button>
-  <ion-fab-button 
-    color="light" 
+    color="secondary"
     attr.data-desc="{{ filenameInfo() }}"
-    (click)="presentFileModal()">
-    <ion-icon name="folder-open"></ion-icon>
-  </ion-fab-button>
-  <ion-fab-button 
-    color="primary" 
-    (click)="maps.toggleUI()" 
-    attr.data-desc="{{ connectionInfo() }}">
+    (click)="setTop('player'); setActiveTool(''); ui = false;">
     <ion-icon name="logo-buffer"></ion-icon>
   </ion-fab-button>
 </ion-fab>
--->

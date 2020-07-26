@@ -33,13 +33,9 @@ fog-canvas {
     z-index: 10;
 }
 
-gm-note-canvas {
-    position: absolute;
-    left: 0;
-    top: 0;
-    z-index: 20; 
+.active-tool {
+    z-index: 10 !important;
 }
-
 
 div[id^='canvas-group'] {
     position: absolute;
