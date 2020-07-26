@@ -10,7 +10,6 @@ import { ColorSelectComponent } from './color-select/color-select.component';
 import { FormsModule } from '@angular/forms';
 import { FogCanvasComponent } from './fog-canvas/fog-canvas.component';
 import { RegionCanvasComponent } from './region-canvas/region-canvas.component';
-import { ControlComponent } from './control/control.component';
 import { FontAwesomeModule } from '@fortawesome/angular-fontawesome';
 
 @NgModule({
@@ -30,7 +29,6 @@ import { FontAwesomeModule } from '@fortawesome/angular-fontawesome';
     MiniMapCanvasComponent,
     ColorSelectComponent,
     FogCanvasComponent,
-    ControlComponent,
     RegionCanvasComponent
   ],
   exports: [
@@ -41,7 +39,6 @@ import { FontAwesomeModule } from '@fortawesome/angular-fontawesome';
     MiniMapCanvasComponent,
     ColorSelectComponent,
     FogCanvasComponent,
-    ControlComponent,
     RegionCanvasComponent
   ]
 })
