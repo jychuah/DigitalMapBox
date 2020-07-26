@@ -10,18 +10,6 @@ import { Point, Region } from '../../types';
   styleUrls: ['./fog-canvas.component.scss'],
 })
 export class FogCanvasComponent extends BaseCanvasComponent {
-  localRect: Region = {
-    p: {
-      x: 0,
-      y: 0
-    },
-    w: 0,
-    h: 0,
-    id: "",
-    revealed: true
-  }
-  drawing: boolean = false;
-
   constructor(public platform: Platform,
     public events: Events,
     public maps: MapSocketService) { 
@@ -51,17 +39,13 @@ export class FogCanvasComponent extends BaseCanvasComponent {
     if (!this.maps.imageLoaded() || !this.maps.image.complete ) { return; }
     this.context.filter = 'blur(30px)';
     this.context.drawImage(this.maps.image, 0, 0);
+    this.context.filter = '';
   }
 
   redraw() {
     if (!this.visible) return;
     super.redraw();
     this.drawMapFill();    
-    this.applyTransforms();
-    if (this.drawing) {
-      this.context.filter = '';
-      this.clearRegion(this.localRect);
-    }
     this.maps.server.regions.forEach(
       (region) => {
         this.drawRegion(region);
