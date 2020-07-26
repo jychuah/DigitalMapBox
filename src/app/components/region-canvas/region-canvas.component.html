@@ -16,10 +16,4 @@
     (click)="toggleCurrentRegion()">
     <ion-icon attr.name="{{ currentRegion.revealed ? 'eye-off' : 'eye' }}"></ion-icon>
   </ion-fab-button>
-  <ion-fab-button
-    *ngIf="currentRegion"
-    attr.color="{{ isTool('move') ? 'primary': 'light' }}"
-    (click)="setTool('move')">
-    <ion-icon name="move"></ion-icon>
-  </ion-fab-button>
 </div>

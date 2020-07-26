@@ -24,6 +24,7 @@ export class RegionCanvasComponent extends FogCanvasComponent {
   }
   tool: string = "";
   active: boolean = false;
+  mode: string = "";
 
   constructor(public platform: Platform,
     public events: Events,
@@ -94,7 +95,7 @@ export class RegionCanvasComponent extends FogCanvasComponent {
     return found;
   }
 
-  mouseEventCallback(p) {
+    mouseEventCallback(p) {
     if (this.tool === "region" && this.active) {
       this.previousDim = {
         x: this.currentRegion.w,
@@ -114,14 +115,22 @@ export class RegionCanvasComponent extends FogCanvasComponent {
         this.highlightRegion = found;
         this.redraw();
       }
-    }
-    if (this.tool === "move" && this.active) {
-      this.clearRegion(this.currentRegion);
-      this.currentRegion.p = {
-        x: p.x - this.grab.x,
-        y: p.y - this.grab.y
+      if (this.currentRegion) {
+        if (this.mode === "move") {
+          this.clearRegion(this.currentRegion);
+          this.currentRegion.p = {
+            x: p.x - this.grab.x,
+            y: p.y - this.grab.y
+          }
+          this.drawCurrentRegion();
+        }
+        if (this.mode === "resize") {
+          this.clearRegion(this.currentRegion);
+          this.currentRegion.w = p.x + this.grab.x - this.currentRegion.p.x;
+          this.currentRegion.h = p.y + this.grab.y - this.currentRegion.p.y;
+          this.drawCurrentRegion();
+        }
       }
-      this.drawCurrentRegion();
     }
   }
 
@@ -146,11 +155,26 @@ export class RegionCanvasComponent extends FogCanvasComponent {
         revealed: false
       }
     }
-    if (this.tool === "move") {
-      this.active = this.pointInRegion(p, this.currentRegion);
-      this.grab = {
-        x: p.x - this.currentRegion.p.x,
-        y: p.y - this.currentRegion.p.y
+    if (this.tool === "select") {
+      let found = this.findMatchingRegion(p);
+      if (found) {
+        this.currentRegion = found;
+
+        let resizeTab: Region = this.getResizeTab();
+        if (this.pointInRegion(p, resizeTab)) {
+          this.mode = "resize";
+          this.grab = {
+            x: this.currentRegion.p.x + this.currentRegion.w - p.x,
+            y: this.currentRegion.p.y + this.currentRegion.h - p.y
+          }
+        } else {
+          this.mode = "move";
+          this.grab = {
+            x: p.x - this.currentRegion.p.x,
+            y: p.y - this.currentRegion.p.y
+          }
+        }
+        this.redraw();
       }
     }
   }
@@ -162,14 +186,11 @@ export class RegionCanvasComponent extends FogCanvasComponent {
       this.pushCurrentRegion();
     }
     if (this.tool === "select" && this.active) {
-      if (this.highlightRegion) {
-        this.currentRegion = this.highlightRegion;
-        this.redraw();
+      if (this.mode === "move" || this.mode === "resize") {
+        this.maps.publishRegion(this.currentRegion);
+        this.events.publish("redraw", this.currentRegion);
       }
-    }
-    if (this.tool === "move" && this.active) {
-      this.maps.publishRegion(this.currentRegion);
-      this.events.publish("redraw");
+      this.mode = "";
     }
 
     this.active = false;
@@ -227,20 +248,33 @@ export class RegionCanvasComponent extends FogCanvasComponent {
     this.strokeRegion(this.highlightRegion);
   }
 
+  getResizeTab() : Region {
+    let tab = 60 / this.maps.localCameras[this.group].scale;
+    return {
+      p: {
+        x: this.currentRegion.p.x + this.currentRegion.w - tab,
+        y: this.currentRegion.p.y + this.currentRegion.h - tab,
+      },
+      w: tab,
+      h: tab,
+      id: "resizeTab",
+      revealed: false
+    }
+  }
+
   drawCurrentRegion() {
     if (!this.currentRegion) return;
     let fill = "#ffffff44";
     this.strokeRegion(this.currentRegion);
-    if (fill) {
-      let saveFill = this.context.fillStyle;
-      this.context.fillStyle = fill;
-      this.context.fillRect(
-        this.currentRegion.p.x, 
-        this.currentRegion.p.y, 
-        this.currentRegion.w, 
-        this.currentRegion.h);
-      this.context.fillStyle = saveFill;
-    }
+    let saveFill = this.context.fillStyle;
+    this.context.fillStyle = fill;
+    this.context.fillRect(
+      this.currentRegion.p.x, 
+      this.currentRegion.p.y, 
+      this.currentRegion.w, 
+      this.currentRegion.h);
+    this.context.fillStyle = saveFill;
+    this.strokeRegion(this.getResizeTab());
   }
 
   toggleCurrentRegion() {
