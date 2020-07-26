@@ -265,7 +265,7 @@ export class RegionCanvasComponent extends FogCanvasComponent {
       return {
         p: {
           x: this.currentRegion.p.x + this.currentRegion.w / 2,
-          y: this.currentRegion.p.y + this.currentRegion.y / 2
+          y: this.currentRegion.p.y + this.currentRegion.h / 2
         },
         w: this.currentRegion.w / 2,
         h: this.currentRegion.h / 2,
