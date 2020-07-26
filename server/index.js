@@ -127,6 +127,7 @@ function emit(socket, event, data) {
 }
 
 function fileListHandler(socket, path) {
+  console.log("Requesting path", path);
   let contents = fs.readdirSync('./public' + path, { withFileTypes: true });
   let subdirs = contents
     .filter(dirent => dirent.isDirectory())

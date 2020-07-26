@@ -34,7 +34,7 @@ export class FileModalPage implements OnInit {
 
   dirUp() {
     this.path = this.path.slice(0, -1).split("/").slice(0, -1).join("/");
-    if (this.path == "img") {
+    if (this.path === "/img") {
       this.path = "/img/";
     }
     this.maps.emit('filelist', this.path);

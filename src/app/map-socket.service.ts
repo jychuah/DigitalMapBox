@@ -116,19 +116,22 @@ export class MapSocketService {
         console.log("Sync state", this.server);
         console.log("Loading", this.image.src);
       }
-      if (data.event == "camera") {
+      if (data.event === "camera") {
         this.server.camera = data.data;
         this.localCameras.player = data.data;
         this.events.publish("redraw");
       }
-      if (data.event == "drawing") {
+      if (data.event === "drawing") {
         this.drawingHandler(data.data);
       }
-      if (data.event == "region") {
+      if (data.event === "region") {
         this.regionHandler(data.data);
       }
-      if (data.event == "erasing") {
+      if (data.event === "erasing") {
         this.erasingHandler(data.data);
+      }
+      if (data.event === "filelist") {
+        this.events.publish("filelist", data.data);
       }
     });
   }
