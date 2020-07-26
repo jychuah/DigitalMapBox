@@ -25,9 +25,6 @@ export class FogCanvasComponent extends BaseCanvasComponent {
     this.events.subscribe("region", (region) => {
       this.drawRegion(region);
     });
-    this.events.subscribe("hideregion", (region) => {
-      this.redraw();
-    });
   }
 
   clearRegion(r: Region) {

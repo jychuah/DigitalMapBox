@@ -18,6 +18,10 @@ export class RegionCanvasComponent extends FogCanvasComponent {
     x: 0,
     y: 0
   }
+  grab: Point = {
+    x: 0,
+    y: 0
+  }
   tool: string = "";
   active: boolean = false;
 
@@ -44,7 +48,6 @@ export class RegionCanvasComponent extends FogCanvasComponent {
 
   setTool(tool: string) {
     this.tool = tool;
-    this.currentRegion = null;
     this.redraw();
   }
 
@@ -74,15 +77,19 @@ export class RegionCanvasComponent extends FogCanvasComponent {
     return result;
   }
 
+  pointInRegion(p: Point, region: Region) {
+    return this.pointInRect(
+      p.x, p.y, region.p.x, region.p.y, region.p.x + region.w, region.p.y + region.h
+    )
+  }
+
   clearRegion(r: Region) {
     this.context.clearRect(r.p.x - 3, r.p.y - 3, r.w + 6, r.h + 6); 
   }
 
   findMatchingRegion(p: Point) {
     let found = this.maps.server.regions.find(
-      (region) => this.pointInRect(
-        p.x, p.y, region.p.x, region.p.y, region.p.x + region.w, region.p.y + region.h
-      )
+      (region) => this.pointInRegion(p, region)
     )
     return found;
   }
@@ -108,6 +115,14 @@ export class RegionCanvasComponent extends FogCanvasComponent {
         this.redraw();
       }
     }
+    if (this.tool === "move" && this.active) {
+      this.clearRegion(this.currentRegion);
+      this.currentRegion.p = {
+        x: p.x - this.grab.x,
+        y: p.y - this.grab.y
+      }
+      this.drawCurrentRegion();
+    }
   }
 
   pushCurrentRegion() {
@@ -131,6 +146,13 @@ export class RegionCanvasComponent extends FogCanvasComponent {
         revealed: false
       }
     }
+    if (this.tool === "move") {
+      this.active = this.pointInRegion(p, this.currentRegion);
+      this.grab = {
+        x: p.x - this.currentRegion.p.x,
+        y: p.y - this.currentRegion.p.y
+      }
+    }
   }
 
   onMouseUp(p) {
@@ -145,6 +167,11 @@ export class RegionCanvasComponent extends FogCanvasComponent {
         this.redraw();
       }
     }
+    if (this.tool === "move" && this.active) {
+      this.maps.publishRegion(this.currentRegion);
+      this.events.publish("redraw");
+    }
+
     this.active = false;
   }
 
@@ -222,7 +249,7 @@ export class RegionCanvasComponent extends FogCanvasComponent {
     if (this.currentRegion.revealed) {
       this.events.publish("region", this.currentRegion);
     } else {
-      this.events.publish("hideregion", this.currentRegion);
+      this.events.publish("redraw", this.currentRegion);
     }
     this.redraw();
   }
