@@ -149,6 +149,7 @@ export class MapSocketService {
         this.localCameras.gm = { ...this.server.camera };
         console.log("Sync state", this.server);
         console.log("Loading", this.image.src);
+        this.events.publish("redraw");
       }
       if (data.event === "camera") {
         this.server.camera = data.data;

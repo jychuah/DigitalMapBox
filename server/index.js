@@ -13,6 +13,7 @@ const { exec } = require('child_process');
 
 var ifaces = os.networkInterfaces();
 var ipaddress = null;
+var dirty = false;
 
 Object.keys(ifaces).forEach(function (ifname) {
   var alias = 0;
@@ -74,10 +75,22 @@ loadServerState();
 app.use(express.static(__dirname + '/public'));
 
 function loadServerState() {
-  loadMetadata("/server");
-  if (server.path && server.path.length) {
-    loadMetadata(server.path);
-    console.log("server.metadata.json loaded");
+  try {
+    console.log("Loading global metadata");
+    loadMetadata("/server");
+    if (server.path && server.path.length) {
+      console.log("Searching for image", "./public" + server.path);
+      if (!fs.existsSync("./public" + server.path)) {
+        throw "Image " + server.path + " not found";
+      }
+      console.log("Loading metadata for", server.path);
+      loadMetadata(server.path);
+      console.log("server.metadata.json loaded");
+    }
+  } catch (err) {
+    console.log("Error while loading server state", err);
+    server = { ...blankState };
+    saveServerState();
   }
 }
 
@@ -88,6 +101,7 @@ function saveServerState() {
 function loadMetadata(path) {
   path = "./public" + path + ".metadata.json";
   try {
+    console.log("Searching for file", path);
     if (fs.existsSync(path)) {
       let meta = JSON.parse(fs.readFileSync(path));
       let oldServer = server; 
@@ -157,6 +171,7 @@ function imageLoadHandler(socket, path) {
   saveServerState();
   broadcast(socket, 'sync', server);
   syncHandler(socket);
+  dirty = true;
 }
 
 function regionHandler(socket, region) {
@@ -168,12 +183,13 @@ function regionHandler(socket, region) {
   }
   console.log("Region ", region);
   broadcast(socket, "region", region);
+  dirty = true;
 }
 
 function drawHandler(socket, vector) {
-  console.log("vector", vector);
   server.vectors.push(vector);
   broadcast(socket, "drawing", vector);
+  dirty = true;
 }
 
 function eraseRegionHandler(socket, id) {
@@ -182,6 +198,7 @@ function eraseRegionHandler(socket, id) {
   );
   server.regions.splice(index, 1);
   broadcast(socket, "eraseregion", id);
+  dirty = true;
 }
 
 function eraseHandler(socket, erased) {
@@ -189,16 +206,19 @@ function eraseHandler(socket, erased) {
   server.vectors = server.vectors.filter(
     (vector) => !erased.includes(vector.id)
   )
+  dirty = true;
 }
 
 function resetVectorsHandler(socket) {
   broadcast(socket, "resetvectors");
   server.vectors = [ ];
+  dirty = true;
 }
 
 function resetRegionsHandler(socket) {
   broadcast(socket, "resetregions");
   server.regions = [ ];
+  dirty = true;
 }
 
 function syncHandler(socket) {
@@ -210,16 +230,18 @@ function cameraHandler(socket, camera) {
   server.camera = camera;
   saveServerState();
   broadcast(socket, "camera", camera);
+  dirty = true;
 }
 
-function saveHandler(socket) {
-  if (server.path && server.path.length) {
+function saveHandler() {
+  if (dirty && server.path && server.path.length) {
     saveMetadata(server.path);
     saveServerState();
     console.log("Saved metadata for", server.path);
-    emit(socket, "savecomplete");
+    dirty = false;
   }
 }
+
 
 function shutdownHandler(socket) {
   exec('sudo shutdown -h now', (err, stdout, stderr) => {
@@ -251,5 +273,6 @@ function onConnection(socket){
   syncHandler(socket);
 }
 
+setInterval(saveHandler, 5000);
 io.on('connection', onConnection);
 http.listen(port, () => console.log('listening on port ' + port));
