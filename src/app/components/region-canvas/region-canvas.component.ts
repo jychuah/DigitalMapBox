@@ -12,6 +12,7 @@ import * as uuidv4 from 'uuid/v4';
 export class RegionCanvasComponent extends FogCanvasComponent {
   @Input('toolbar') toolbar: boolean = false;
   currentRegion: Region = null;
+  highlightRegion: Region = null;
   previousDim: Point = null
   current: Point = {
     x: 0,
@@ -43,8 +44,48 @@ export class RegionCanvasComponent extends FogCanvasComponent {
 
   setTool(tool: string) {
     this.tool = tool;
+    this.currentRegion = null;
+    this.redraw();
   }
 
+  between(min, p, max){
+    let result = false;
+    if ( min < max ){
+      if ( p > min && p < max ){
+        result = true;
+      }
+    }
+    if ( min > max ){
+      if ( p > max && p < min){
+        result = true
+      }
+    }
+    if ( p == min || p == max ){
+      result = true;
+    }
+    return result;
+  }
+  
+  pointInRect(x, y, left, top, right, bottom){
+    let result = false;
+    if (this.between(left, x, right) && this.between(top, y, bottom) ){
+      result = true;
+    }
+    return result;
+  }
+
+  clearRegion(r: Region) {
+    this.context.clearRect(r.p.x - 3, r.p.y - 3, r.w + 6, r.h + 6); 
+  }
+
+  findMatchingRegion(p: Point) {
+    let found = this.maps.server.regions.find(
+      (region) => this.pointInRect(
+        p.x, p.y, region.p.x, region.p.y, region.p.x + region.w, region.p.y + region.h
+      )
+    )
+    return found;
+  }
 
   mouseEventCallback(p) {
     if (this.tool === "region" && this.active) {
@@ -57,18 +98,25 @@ export class RegionCanvasComponent extends FogCanvasComponent {
       this.clearPreviousRegion();
       this.drawCurrentRegion()
     }
+    if (this.tool === "select") {
+      let found = this.findMatchingRegion(p);
+      if (!found) {
+        found = null;
+      }
+      if (found != this.highlightRegion) {
+        this.highlightRegion = found;
+        this.redraw();
+      }
+    }
   }
 
   pushCurrentRegion() {
     this.maps.server.regions.push(this.currentRegion);
     this.events.publish("region", this.currentRegion);
-    this.context.clearRect(
-      this.currentRegion.p.x - 3, this.currentRegion.p.y - 3,
-      this.currentRegion.w + 6, this.currentRegion.h + 6);
+    this.clearRegion(this.currentRegion);
     this.drawRegion(this.currentRegion);
-    this.currentRegion = null;
+    this.maps.publishRegion(this.currentRegion);
   }
-
 
   onMouseDown(p) {
     if (this.tool === "") return;
@@ -91,6 +139,12 @@ export class RegionCanvasComponent extends FogCanvasComponent {
     if (this.tool === "region" && this.active) {
       this.pushCurrentRegion();
     }
+    if (this.tool === "select" && this.active) {
+      if (this.highlightRegion) {
+        this.currentRegion = this.highlightRegion;
+        this.redraw();
+      }
+    }
     this.active = false;
   }
 
@@ -98,6 +152,14 @@ export class RegionCanvasComponent extends FogCanvasComponent {
     if (!this.visible) return;
     this.mouseEventCallback(p);
     this.current = p;
+  }
+
+  refillRegion(r: Region) {
+    if (!r.revealed) {
+      this.context.fillStyle = "#00000088";
+      this.context.fillRect(r.p.x, r.p.y, r.w, r.h);
+    } 
+    this.drawRegion(r);
   }
 
   drawRegion(r: Region) {
@@ -126,17 +188,22 @@ export class RegionCanvasComponent extends FogCanvasComponent {
     }
   }
 
-  drawCurrentRegion() {
-    if (!this.currentRegion) return;
+  strokeRegion(r: Region) {
     let color = "#ffffff";
-    let fill = "#ffffff88";
     this.context.strokeStyle = color;
     this.context.lineWidth = 3;
-    this.context.strokeRect(
-      this.currentRegion.p.x, 
-      this.currentRegion.p.y, 
-      this.currentRegion.w, 
-      this.currentRegion.h);
+    this.context.strokeRect(r.p.x, r.p.y, r.w, r.h);
+  }
+
+  drawHighlightRegion() {
+    if (!this.highlightRegion) return;
+    this.strokeRegion(this.highlightRegion);
+  }
+
+  drawCurrentRegion() {
+    if (!this.currentRegion) return;
+    let fill = "#ffffff44";
+    this.strokeRegion(this.currentRegion);
     if (fill) {
       let saveFill = this.context.fillStyle;
       this.context.fillStyle = fill;
@@ -149,8 +216,21 @@ export class RegionCanvasComponent extends FogCanvasComponent {
     }
   }
 
+  toggleCurrentRegion() {
+    this.currentRegion.revealed = !this.currentRegion.revealed;
+    this.maps.publishRegion(this.currentRegion);
+    if (this.currentRegion.revealed) {
+      this.events.publish("region", this.currentRegion);
+    } else {
+      this.events.publish("hideregion", this.currentRegion);
+    }
+    this.redraw();
+  }
+
   redraw() {
     if (!this.visible) return;
     super.redraw();
+    this.drawHighlightRegion();
+    this.drawCurrentRegion();
   }
 }

@@ -137,7 +137,6 @@ export class MapSocketService {
   }
 
   emit(event: string, data: any = "") {
-    console.log("emitting", data);
     this.socket.emit(event, data);
   }
 }
