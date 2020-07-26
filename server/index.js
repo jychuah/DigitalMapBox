@@ -244,6 +244,7 @@ function saveHandler() {
 
 
 function shutdownHandler(socket) {
+  console.log("*** SERVER SHUTDOWN REQUESTED ***");
   exec('sudo shutdown -h now', (err, stdout, stderr) => {
     if (err) {
       // node couldn't execute the command

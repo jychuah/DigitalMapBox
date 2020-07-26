@@ -4,6 +4,11 @@
 </div>
 <div class="controls">
     <ion-fab-button
+        color="danger"
+        (click)="shutdownClickHandler()">
+        <ion-icon name="power"></ion-icon>
+    </ion-fab-button>
+    <ion-fab-button
         color="light"
         (click)="snapToPlayer()">
         <ion-icon name="open"></ion-icon>

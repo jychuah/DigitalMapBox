@@ -105,6 +105,10 @@ export class MapSocketService {
     this.events.publish("redraw");
   }
 
+  publishShutdown() {
+    this.socket.emit("shutdown");
+  }
+
   erasingHandler(erasedIDs: string[]) {
     this.server.vectors = this.server.vectors.filter(
       (vector) => !erasedIDs.includes(vector.id)

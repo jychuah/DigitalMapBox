@@ -1,6 +1,6 @@
 import { Component, AfterViewInit, ElementRef, OnInit } from '@angular/core';
 import { BaseCanvasComponent } from '../base-canvas/base-canvas.component';
-import { Events, Platform } from '@ionic/angular';
+import { Events, Platform, AlertController } from '@ionic/angular';
 import { MapSocketService } from '../../map-socket.service';
 import { ViewPort, Camera, Point } from '../../types';
 import { DomSanitizer } from '@angular/platform-browser';
@@ -45,7 +45,8 @@ export class MiniMapCanvasComponent extends BaseCanvasComponent implements After
               public events: Events, 
               public maps: MapSocketService,
               private el: ElementRef,
-              private dom: DomSanitizer) { 
+              private dom: DomSanitizer,
+              public alertController: AlertController) { 
     super(platform, events, maps);
   }
 
@@ -252,5 +253,28 @@ export class MiniMapCanvasComponent extends BaseCanvasComponent implements After
 
   send() {
     this.maps.publishCamera("player");
+  }
+
+
+  async shutdownClickHandler() {
+    const alert = await this.alertController.create({
+      header: "Shutdown",
+      message: "Are you sure you wish to shut down the server?",
+      buttons: [
+        {
+          text: 'Cancel',
+          role: 'cancel',
+          cssClass: 'light'
+        },
+        {
+          text: 'Shutdown',
+          cssClass: 'danger',
+          handler: () => {
+            this.maps.publishShutdown();
+          }
+        }
+      ]
+    });
+    await alert.present();
   }
 }
