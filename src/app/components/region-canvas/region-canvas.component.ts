@@ -134,6 +134,16 @@ export class RegionCanvasComponent extends FogCanvasComponent {
     }
   }
 
+  deleteCurrentRegion() {
+    let index = this.maps.server.regions.findIndex(
+      (region) => region.id === this.currentRegion.id
+    );
+    this.maps.publishEraseRegion(this.currentRegion.id);
+    this.maps.server.regions.splice(index, 1);
+    this.currentRegion = null;
+    this.events.publish("redraw");
+  }
+
   pushCurrentRegion() {
     this.maps.server.regions.push(this.currentRegion);
     this.events.publish("region", this.currentRegion);

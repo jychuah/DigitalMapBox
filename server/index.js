@@ -176,36 +176,12 @@ function drawHandler(socket, vector) {
   broadcast(socket, "drawing", vector);
 }
 
-function pointDistance(p, v) {
-  var A = p.x - v.p0.x;
-  var B = p.y - v.p0.y;
-  var C = v.p1.x - v.p0.x;
-  var D = v.p1.y - v.p0.y;
-
-  var dot = A * C + B * D;
-  var len_sq = C * C + D * D;
-  var param = -1;
-  if (len_sq != 0) //in case of 0 length line
-      param = dot / len_sq;
-
-  var xx, yy;
-
-  if (param < 0) {
-    xx = v.p0.x;
-    yy = v.p0.y;
-  }
-  else if (param > 1) {
-    xx = v.p1.x;
-    yy = v.p1.y;
-  }
-  else {
-    xx = v.p0.x + param * C;
-    yy = v.p0.y + param * D;
-  }
-
-  var dx = p.x - xx;
-  var dy = p.y - yy;
-  return Math.sqrt(dx * dx + dy * dy);
+function eraseRegionHandler(socket, id) {
+  let index = server.regions.findIndex(
+    (region) => region.id === id
+  );
+  server.regions.splice(index, 1);
+  broadcast(socket, "eraseregion", id);
 }
 
 function eraseHandler(socket, erased) {
@@ -263,6 +239,7 @@ function onConnection(socket){
   socket.on('camera', (camera) => cameraHandler(socket, camera));
   socket.on('save', () => saveHandler(socket));
   socket.on('erasing', (vectors) => eraseHandler(socket, vectors));
+  socket.on('eraseregion', (id) => eraseRegionHandler(socket, id));
   socket.on('region', (region) => regionHandler(socket, region));
   socket.on('shutdown', () => shutdownHandler(socket));
   socket.on('globalreset', () => globalResetHandler(socket));

@@ -85,6 +85,10 @@ export class MapSocketService {
     this.emit("erasing", ids);
   }
 
+  publishEraseRegion(id: string) {
+    this.emit("eraseregion", id);
+  }
+
   publishCamera(camera: string) {
     this.socket.emit("camera", this.localCameras[camera]);
   }
@@ -102,6 +106,14 @@ export class MapSocketService {
     }
     this.server.vectors.push(vector);
     this.events.publish("drawing", vector);
+  }
+
+  eraseRegionHandler(id: string) {
+    let index = this.server.regions.findIndex(
+      (region) => region.id === id
+    );
+    this.server.regions.splice(index, 1);
+    this.events.publish("redraw");
   }
 
   connect() {
@@ -132,6 +144,9 @@ export class MapSocketService {
       }
       if (data.event === "filelist") {
         this.events.publish("filelist", data.data);
+      }
+      if (data.event === "eraseregion") {
+        this.eraseRegionHandler(data.data);
       }
     });
   }

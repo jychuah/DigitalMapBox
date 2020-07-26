@@ -16,4 +16,10 @@
     (click)="toggleCurrentRegion()">
     <ion-icon attr.name="{{ currentRegion.revealed ? 'eye-off' : 'eye' }}"></ion-icon>
   </ion-fab-button>
+  <ion-fab-button
+    *ngIf="currentRegion"
+    color="danger"
+    (click)="deleteCurrentRegion()">
+    <ion-icon name="close-circle"></ion-icon>
+  </ion-fab-button>
 </div>
