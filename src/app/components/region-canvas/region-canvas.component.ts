@@ -260,6 +260,18 @@ export class RegionCanvasComponent extends FogCanvasComponent {
 
   getResizeTab() : Region {
     let tab = 60 / this.maps.localCameras[this.group].scale;
+    if (this.currentRegion.w < tab || this.currentRegion.h < tab) {
+      return {
+        p: {
+          x: this.currentRegion.p.x + this.currentRegion.w / 2,
+          y: this.currentRegion.p.y + this.currentRegion.y / 2
+        },
+        w: this.currentRegion.w / 2,
+        h: this.currentRegion.h / 2,
+        id: "resizeTab",
+        revealed: false
+      }
+    }
     return {
       p: {
         x: this.currentRegion.p.x + this.currentRegion.w - tab,
