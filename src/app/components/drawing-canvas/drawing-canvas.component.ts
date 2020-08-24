@@ -55,7 +55,7 @@ export class DrawingCanvasComponent extends BaseCanvasComponent implements After
     let vector = {
       p0: this.current,
       p1: p,
-      w: 2 / this.maps.localCameras[this.group].scale,
+      w: 4 / this.maps.localCameras[this.group].scale,
       c: this.maps.penColor,
       id: uuidv4().substring(0, 8)
     } 
