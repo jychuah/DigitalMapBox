@@ -43,6 +43,10 @@ export class DrawingCanvasComponent extends BaseCanvasComponent implements After
     });
   }
 
+  penColor($event) {
+    this.maps.penColor = $event;
+  }
+
   isTool(tool: string) {
     return this.tool === tool;
   }
