@@ -14,7 +14,7 @@ export class FileModalPage implements OnInit {
   public subdirs: string[] = [];
   public images: string[] = [];
 
-  constructor(private maps: MapSocketService, 
+  constructor(public maps: MapSocketService, 
               private modal: ModalController,
               private events: Events) { }
 

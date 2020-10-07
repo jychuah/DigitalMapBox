@@ -6,13 +6,13 @@
 
 <ion-content>
   <ion-list>
-    <ion-list-header>{{ path }}</ion-list-header>
+    <ion-list-header>{{ maps.path }}</ion-list-header>
     <ion-item *ngIf="loading">
       <ion-label>
         <i>Loading</i>
       </ion-label>
     </ion-item>
-    <ion-item button (click)="dirUp()" *ngIf="!loading && path != '/img/'">
+    <ion-item button (click)="dirUp()" *ngIf="!loading && maps.path != '/img/'">
       <ion-icon name="return-left" slot="end"></ion-icon>
       <ion-label>
           Up one level ... &nbsp; 
