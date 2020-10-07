@@ -11,7 +11,6 @@ import { Events } from '@ionic/angular';
 export class FileModalPage implements OnInit {
   public loading: boolean = true;
   socketEvents: Observable<any> = null;
-  public path: string = "/img";
   public subdirs: string[] = [];
   public images: string[] = [];
 
@@ -25,28 +24,28 @@ export class FileModalPage implements OnInit {
       this.images = data.images;
       this.loading = false;
     });
-    this.maps.emit('filelist', this.path);
+    this.maps.emit('filelist', this.maps.path);
   }
 
   imgPath(image) {
-    return this.maps.url + this.path + "/" + image;
+    return this.maps.url + this.maps.path + "/" + image;
   }
 
   dirUp() {
-    this.path = this.path.slice(0, -1).split("/").slice(0, -1).join("/");
-    this.maps.emit('filelist', this.path);
+    this.maps.path = this.maps.path.slice(0, -1).split("/").slice(0, -1).join("/");
+    this.maps.emit('filelist', this.maps.path);
   }
 
   navigate(subdir) {
     this.loading = true;
     this.subdirs = [ ];
     this.images = [ ];
-    this.path += "/" + subdir;
-    this.maps.emit('filelist', this.path);
+    this.maps.path += "/" + subdir;
+    this.maps.emit('filelist', this.maps.path);
   }
 
   select(image) {
-    this.maps.emit('imageload', this.path + "/" + image);
+    this.maps.emit('imageload', this.maps.path + "/" + image);
     this.modal.dismiss();
   }
 

@@ -35,6 +35,8 @@ export class MapSocketService {
   private ipRegex = new RegExp(/([0-9]{1,3}(\.[0-9]{1,3}){3}|[a-f0-9]{1,4}(:[a-f0-9]{1,4}){7})/);
   public penColor: string = "#ffffff";
 
+  public path: string = "/img";
+
   public localCameras: any = {
     gm: this.server.camera,
     player: this.server.camera
