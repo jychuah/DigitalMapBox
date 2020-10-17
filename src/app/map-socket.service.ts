@@ -149,6 +149,7 @@ export class MapSocketService {
     this.socket = io(this.url);
     this.socket.on("DigitalMapBox", (data) => {
       if (data.event == "sync") {
+        this.events.publish("sync");
         this.server = data.data;
         this.image.src = this.url + this.server.path;
         this.localCameras.player = { ...this.server.camera };

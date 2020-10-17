@@ -42,6 +42,10 @@ export class RegionCanvasComponent extends FogCanvasComponent {
     this.events.subscribe("region", (region) => {
       this.drawRegion(region);
     });
+    this.events.subscribe("sync", () => {
+      this.currentRegion = null;
+      this.highlightRegion = null;
+    });
   }
 
   isTool(tool: string) {
