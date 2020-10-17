@@ -12,6 +12,12 @@
   </ion-fab-button>
   <ion-fab-button
     *ngIf="currentRegion"
+    color="secondary"
+    (click)="snapCurrentRegion()">
+    <ion-icon name="bookmark"></ion-icon>
+  </ion-fab-button>
+  <ion-fab-button
+    *ngIf="currentRegion"
     attr.color="{{ currentRegion.revealed ? 'secondary' : 'light' }}"
     (click)="toggleCurrentRegion()">
     <ion-icon attr.name="{{ currentRegion.revealed ? 'eye-off' : 'eye' }}"></ion-icon>
