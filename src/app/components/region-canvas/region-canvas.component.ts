@@ -142,12 +142,15 @@ export class RegionCanvasComponent extends FogCanvasComponent {
   snapCurrentRegion() {
     let camera: Camera = {
       ...this.maps.localCameras.gm,
-      x: (this.currentRegion.p.x + this.currentRegion.w) / 2,
-      y: (this.currentRegion.p.y + this.currentRegion.h) / 2
+      center: {
+        x: (this.currentRegion.p.x + this.currentRegion.w / 2),
+        y: (this.currentRegion.p.y + this.currentRegion.h / 2)
+      }
     };
     this.maps.localCameras.gm = { ...camera };
     this.maps.localCameras.player = { ...camera };
     this.maps.publishCamera("player");
+    this.events.publish("redraw");
   }
 
   deleteCurrentRegion() {
