@@ -17,6 +17,9 @@
 <div id="canvas-group-minimap" [class]="canvasGroupClass('minimap')">
   <mini-map-canvas group="minimap" id="minimap"></mini-map-canvas>
 </div>
+<div id="canvas-group-minimap" [class]="canvasGroupClass('dm-minimap')">
+  <dm-mini-map-canvas group="dm-minimap" id="dm-minimap"></dm-mini-map-canvas>
+</div>
 <ion-fab vertical="bottom" horizontal="end" slot="fixed" class="vertical-ui" *ngIf="!ui">
   <ion-fab-button
     color="light"
@@ -36,6 +39,12 @@
     [color]="isTop('minimap') ? 'primary' : 'light'"
     data-desc="Minimap"
     (click)="setTop('minimap'); setActiveTool('')">
+    <ion-icon name="map"></ion-icon>
+  </ion-fab-button>
+  <ion-fab-button
+    [color]="isTop('dm-minimap') ? 'primary' : 'light'"
+    data-desc="DM Minimap"
+    (click)="setTop('dm-minimap'); setActiveTool('')">
     <ion-icon name="map"></ion-icon>
   </ion-fab-button>
   <ion-fab-button

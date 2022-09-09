@@ -6,11 +6,11 @@ import { ViewPort, Camera, Point } from '../../types';
 import { DomSanitizer } from '@angular/platform-browser';
 
 @Component({
-  selector: 'mini-map-canvas',
-  templateUrl: './mini-map-canvas.component.html',
-  styleUrls: ['./mini-map-canvas.component.scss'],
+  selector: 'dm-mini-map-canvas',
+  templateUrl: './dm-mini-map-canvas.component.html',
+  styleUrls: ['./dm-mini-map-canvas.component.scss'],
 })
-export class MiniMapCanvasComponent extends BaseCanvasComponent implements AfterViewInit, OnInit {
+export class DmMiniMapCanvasComponent extends BaseCanvasComponent implements AfterViewInit, OnInit {
   dx: number = 0;
   dy: number = 0;
   dWidth: number = 0;
@@ -39,7 +39,7 @@ export class MiniMapCanvasComponent extends BaseCanvasComponent implements After
     height: 0
   }
 
-  currentCamera: string = "player";
+  currentCamera: string = "gm";
 
   constructor(public platform: Platform, 
               public events: Events, 
@@ -173,7 +173,7 @@ export class MiniMapCanvasComponent extends BaseCanvasComponent implements After
 
   onMouseUp(e) {
     if (this.dragging) {
-      this.maps.localCameras.player = this.draggableCamera;
+      this.maps.localCameras.gm = this.draggableCamera;
       this.events.publish("viewport");
     }
     this.dragging = false;
@@ -229,6 +229,8 @@ export class MiniMapCanvasComponent extends BaseCanvasComponent implements After
       this.drawViewPort(this.localViewport, this.draggableCamera, "#ffffff");
       return;
     }
+    // Draw GM viewport and camera
+    this.drawViewPort(this.localViewport, this.maps.localCameras.gm, "#ffffff", "#ffffffaa");
   }
 
   isCamera(camera: string) {
@@ -239,8 +241,18 @@ export class MiniMapCanvasComponent extends BaseCanvasComponent implements After
     this.currentCamera = camera;
   }
 
+  snapToGM() {
+    this.maps.localCameras.player = { ...this.maps.localCameras.gm };
+    this.redraw();
+  }
+
+  snapToPlayer() {
+    this.maps.localCameras.gm = { ...this.maps.localCameras.player };
+    this.redraw();
+  }
+
   send() {
-    this.maps.publishCamera("player");
+    this.maps.publishCamera("gm");
   }
 
 

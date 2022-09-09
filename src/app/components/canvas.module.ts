@@ -6,6 +6,7 @@ import { MapCanvasComponent } from './map-canvas/map-canvas.component';
 import { DrawingCanvasComponent } from './drawing-canvas/drawing-canvas.component';
 import { MapNavComponent } from './map-nav/map-nav.component';
 import { MiniMapCanvasComponent} from './mini-map-canvas/mini-map-canvas.component';
+import { DmMiniMapCanvasComponent } from './dm-mini-map-canvas/dm-mini-map-canvas.component';
 import { ColorSelectComponent } from './color-select/color-select.component';
 import { FormsModule } from '@angular/forms';
 import { FogCanvasComponent } from './fog-canvas/fog-canvas.component';
@@ -29,7 +30,8 @@ import { FontAwesomeModule } from '@fortawesome/angular-fontawesome';
     MiniMapCanvasComponent,
     ColorSelectComponent,
     FogCanvasComponent,
-    RegionCanvasComponent
+    RegionCanvasComponent,
+    DmMiniMapCanvasComponent
   ],
   exports: [
     DrawingCanvasComponent,
@@ -39,7 +41,8 @@ import { FontAwesomeModule } from '@fortawesome/angular-fontawesome';
     MiniMapCanvasComponent,
     ColorSelectComponent,
     FogCanvasComponent,
-    RegionCanvasComponent
+    RegionCanvasComponent,
+    DmMiniMapCanvasComponent
   ]
 })
 export class CanvasModule {}

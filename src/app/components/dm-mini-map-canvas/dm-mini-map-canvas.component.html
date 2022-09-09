@@ -1,0 +1,10 @@
+<div [style.background-image]="getBackgroundImage()" id="minimap-background">
+    <canvas #canvas>
+    </canvas>    
+</div>
+<div class="controls">
+    <ion-range 
+        color="light" 
+        (ionChange)="scaleChange($event)"
+        [(ngModel)]="rangeSlider"></ion-range>
+</div>
